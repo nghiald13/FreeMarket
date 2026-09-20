@@ -40,3 +40,4 @@ build/
 
 ### Environments & Secrets ###
 .env
+**/application-dev.yaml

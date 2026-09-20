@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: ${INVENTORY_DB}
+    username: ${INVENTORY_DB_USER}
+    password: ${INVENTORY_DB_PW}
+    driver-class-name: org.postgresql.Driver
