@@ -9,7 +9,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>inventory-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>inventory-service</name>
     <description>inventory-service</description>
     <url/>
@@ -70,6 +69,11 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <!-- inventory-service/pom.xml -->
+        <dependency>
+            <groupId>com.ldn</groupId>
+            <artifactId>common</artifactId>
         </dependency>
     </dependencies>
     <dependencyManagement>

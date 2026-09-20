@@ -16,7 +16,7 @@
     </parent>
 
     <modules>
-<!--        <module>common</module>-->
+        <module>common</module>
         <module>eureka-server</module>
         <module>api-gateway</module>
         <module>inventory-service</module>
@@ -30,7 +30,11 @@
 
     <dependencyManagement>
         <dependencies>
-
+            <dependency>
+                <groupId>com.ldn</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
