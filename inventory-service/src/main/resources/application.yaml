@@ -1,9 +1,9 @@
 server:
-  port: 8081
+  port: 8082
 
 spring:
   profiles:
-    active: dev
+    active: dev # prod or completely comment out profiles
   application:
     name: inventory-service
   jpa:

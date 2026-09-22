@@ -19,6 +19,7 @@
         <module>common</module>
         <module>eureka-server</module>
         <module>api-gateway</module>
+        <module>auth-service</module>
         <module>inventory-service</module>
     </modules>
 
