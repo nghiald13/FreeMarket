@@ -4,12 +4,12 @@ USE auth_db;
 -- ============================================================
 -- 1. BẢNG TÀI KHOẢN TRUNG TÂM (USERS / ACCOUNTS)
 -- ============================================================
-CREATE TABLE users (
-                       user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE accounts (
+                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
                        email VARCHAR(150) NULL UNIQUE,
                        phone VARCHAR(20) NULL UNIQUE,
-                       password_hash VARCHAR(255) NULL, -- NULL nếu dùng OAuth2 thuần
-                       status ENUM('PENDING', 'ACTIVE', 'SUSPENDED', 'LOCKED') DEFAULT 'PENDING',
+                       password VARCHAR(255) NULL, -- NULL nếu dùng OAuth2 thuần
+                       status ENUM('INACTIVE', 'ACTIVE', 'SUSPENDED', 'LOCKED') DEFAULT 'INACTIVE',
                        is_mfa_enabled BOOLEAN DEFAULT FALSE,
                        mfa_secret VARCHAR(255) NULL,
                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -30,7 +30,7 @@ CREATE TABLE roles (
 -- Bảng Quyền chi tiết (Permissions)
 CREATE TABLE permissions (
                              permission_id INT AUTO_INCREMENT PRIMARY KEY,
-                             code VARCHAR(100) NOT NULL UNIQUE, -- Ví dụ: 'product:create', 'order:cancel', 'user:block'
+                             code VARCHAR(100) NOT NULL UNIQUE, -- Ví dụ: 'product:create', 'order:cancel', 'account:block'
                              description VARCHAR(255) NULL
 );
 
@@ -53,52 +53,24 @@ CREATE TABLE role_permissions (
 );
 
 -- ============================================================
--- 3. BẢNG PHIÊN ĐĂNG NHẬP & REFRESH TOKEN (SECURITY)
--- ============================================================
-CREATE TABLE refresh_tokens (
-                                token_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                user_id BIGINT NOT NULL,
-                                token_hash VARCHAR(255) NOT NULL UNIQUE,
-                                device_info VARCHAR(255) NULL, -- Ví dụ: Chrome/Windows, App iOS
-                                ip_address VARCHAR(45) NULL,
-                                is_revoked BOOLEAN DEFAULT FALSE,
-                                expires_at DATETIME NOT NULL,
-                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-
--- ============================================================
 -- 4. BẢNG ĐĂNG NHẬP MẠNG XÃ HỘI (OAUTH2 / SOCIAL LOGIN)
 -- ============================================================
 CREATE TABLE social_accounts (
                                  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                 user_id BIGINT NOT NULL,
+                                 account_id BIGINT NOT NULL,
                                  provider ENUM('GOOGLE', 'FACEBOOK', 'APPLE', 'GITHUB') NOT NULL,
-                                 provider_user_id VARCHAR(255) NOT NULL, -- ID trả về từ Google/Facebook
+                                 provider_account_id VARCHAR(255) NOT NULL, -- ID trả về từ Google/Facebook
                                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                  UNIQUE KEY unique_provider_user (provider, provider_user_id),
-                                 FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-
--- ============================================================
--- 5. BẢNG MÃ XÁC THỰC (OTP / FORGOT PASSWORD / EMAIL VERIFICATION)
--- ============================================================
-CREATE TABLE otps (
-                      otp_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                      identifier VARCHAR(150) NOT NULL, -- Email hoặc Phone nhận OTP
-                      otp_code VARCHAR(10) NOT NULL,
-                      type ENUM('REGISTER', 'FORGOT_PASSWORD', 'LOGIN_MFA') NOT NULL,
-                      is_used BOOLEAN DEFAULT FALSE,
-                      expires_at DATETIME NOT NULL,
-                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                                 FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
 
 -- ============================================================
 -- 6. BẢNG NHẬT KÝ ĐĂNG NHẬP (AUDIT LOGS)
 -- ============================================================
 CREATE TABLE login_logs (
-                            log_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                            user_id BIGINT NULL,
+                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            account_id BIGINT NULL,
                             identifier_used VARCHAR(150) NOT NULL, -- Email/Phone đã nhập
                             status ENUM('SUCCESS', 'FAILED_WRONG_PASSWORD', 'BLOCKED', 'MFA_FAILED') NOT NULL,
                             ip_address VARCHAR(45) NULL,
@@ -109,5 +81,3 @@ CREATE TABLE login_logs (
 -- Index tối ưu truy vấn
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_phone ON users(phone);
-CREATE INDEX idx_refresh_token_user ON refresh_tokens(user_id);
-CREATE INDEX idx_otps_identifier ON otps(identifier, type);

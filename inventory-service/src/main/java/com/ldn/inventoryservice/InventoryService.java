@@ -50,7 +50,7 @@ public class InventoryService {
         Map<Long, Product> productMap = products.stream()
                 .collect(Collectors.toMap(Product::getId, Function.identity()));
         if (products.size() != cart.items().size())
-             throw new InvalidCartException("Some items are missing or not existed!", HttpStatus.BAD_REQUEST);
+             throw new InvalidCartException("Some items are missing or not existed!");
 
         List<CartDetailResponse> result = cart.items().stream()
                 .map(cartItem -> {
