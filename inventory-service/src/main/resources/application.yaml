@@ -6,6 +6,11 @@ spring:
     active: dev # prod or completely comment out profiles
   application:
     name: inventory-service
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
