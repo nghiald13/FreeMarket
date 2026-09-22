@@ -1,5 +1,6 @@
 package com.ldn.common.advice;
 
+import com.ldn.common.exception.BusinessException;
 import com.ldn.common.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +43,13 @@ public class GlobalExceptionHandler {
         int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
         return ResponseEntity.status(statusCode)
                 .body(ApiResponse.error("Internal server error", ex.getMessage(), statusCode));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<?>> handleBusinessException(BusinessException ex) {
+        int statusCode = ex.getStatusCode();
+
+        return ResponseEntity.status(statusCode)
+                .body(ApiResponse.error(ex.getMessage(), null, statusCode));
     }
 }

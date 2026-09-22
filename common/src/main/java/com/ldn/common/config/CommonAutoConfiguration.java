@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import tools.jackson.databind.ObjectMapper;
 
 @AutoConfiguration
 @ConditionalOnClass(ResponseBodyAdvice.class)
@@ -14,8 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public class CommonAutoConfiguration {
 
     @Bean
-    public GlobalResponseWrapper globalResponseWrapper() {
-        return new GlobalResponseWrapper();
+    public GlobalResponseWrapper globalResponseWrapper(ObjectMapper objectMapper) {
+        return new GlobalResponseWrapper(objectMapper);
     }
 
     @Bean

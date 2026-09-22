@@ -14,15 +14,26 @@ import tools.jackson.databind.ObjectMapper;
 @RestControllerAdvice
 public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
 
+    private final ObjectMapper objectMapper;
+
+    public GlobalResponseWrapper(tools.jackson.databind.ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return !returnType.getParameterType().equals(ApiResponse.class);
+        return true; // luôn cho chạy, quyết định thật sự nằm ở beforeBodyWrite
     }
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
+
+        // Đã là ApiResponse rồi (từ GlobalExceptionHandler) → giữ nguyên, KHÔNG bọc thêm
+        if (body instanceof ApiResponse) {
+            return body;
+        }
 
         int statusCode = extractStatusCode(response);
 
@@ -42,7 +53,7 @@ public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
 
     private String toJsonString(ApiResponse<?> response) {
         try {
-            return new ObjectMapper().writeValueAsString(response);
+            return objectMapper.writeValueAsString(response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
