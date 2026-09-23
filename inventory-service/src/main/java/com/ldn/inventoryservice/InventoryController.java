@@ -1,5 +1,6 @@
 package com.ldn.inventoryservice;
 
+import com.ldn.common.security.Public;
 import com.ldn.inventoryservice.dto.request.CartRequest;
 import com.ldn.inventoryservice.dto.response.CartDetailResponse;
 import com.ldn.inventoryservice.pojo.Product;
@@ -16,6 +17,7 @@ import java.util.List;
 public class InventoryController {
     private final InventoryService inventoryService;
 
+    @Public
     @GetMapping("/products")
     public List<Product> getAllProducts() {
         return this.inventoryService.getAllProducts();

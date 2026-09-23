@@ -32,10 +32,12 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    AccountStatus status;
+    @Builder.Default
+    AccountStatus status = AccountStatus.INACTIVE;
 
     @Column(name = "is_mfa_enabled")
-    boolean isMfaEnabled;
+    @Builder.Default
+    boolean isMfaEnabled = false;
 
     @Column(name = "mfa_secret", nullable = false, unique = true)
     String mfaSecret;

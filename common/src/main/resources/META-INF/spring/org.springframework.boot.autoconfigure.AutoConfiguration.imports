@@ -1,1 +1,2 @@
 com.ldn.common.config.CommonAutoConfiguration
+com.ldn.common.security.SecurityConfig
