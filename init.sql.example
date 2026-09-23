@@ -1,0 +1,19 @@
+-- 1. Tạo Database
+CREATE DATABASE auth_db;
+CREATE DATABASE inventory_db;
+
+-- 2. Tạo User
+CREATE USER your_auth_user WITH PASSWORD 'your_auth_password';
+CREATE USER your_inventory_user WITH PASSWORD 'your_auth_password';
+
+-- 3. Cấp quyền Database & Schema public cho Auth Service
+GRANT ALL PRIVILEGES ON DATABASE auth_db TO auth_user;
+\c auth_db;
+GRANT ALL ON SCHEMA public TO auth_user;
+ALTER SCHEMA public OWNER TO auth_user;
+
+-- 4. Cấp quyền Database & Schema public cho Inventory Service
+GRANT ALL PRIVILEGES ON DATABASE inventory_db TO inventory_user;
+\c inventory_db;
+GRANT ALL ON SCHEMA public TO inventory_user;
+ALTER SCHEMA public OWNER TO inventory_user;

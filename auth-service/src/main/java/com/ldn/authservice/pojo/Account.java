@@ -1,5 +1,6 @@
 package com.ldn.authservice.pojo;
 
+import com.ldn.authservice.enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,7 +32,7 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    String status;
+    AccountStatus status;
 
     @Column(name = "is_mfa_enabled")
     boolean isMfaEnabled;

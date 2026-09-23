@@ -41,3 +41,4 @@ build/
 ### Environments & Secrets ###
 .env
 **/application-dev.yaml
+init.sql

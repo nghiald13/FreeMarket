@@ -10,9 +10,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U freemarket" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_ADMIN_USER:-root}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -103,6 +104,8 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
+    networks:
+      - freemarket-network
 
   # API Gateway (Routing & Load Balancing)
   api-gateway:
@@ -119,6 +122,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - freemarket-network
 
   # Auth Service
   auth-service:
@@ -145,6 +150,8 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - freemarket-network
 
   # Inventory Service
   inventory-service:
@@ -159,8 +166,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      kafka:
-        condition: service_started
+#      kafka:
+#        condition: service_started
       eureka-server:
         condition: service_started
       redis:
@@ -172,6 +179,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${INVENTORY_DB_PASSWORD}
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - freemarket-network
 
 volumes:
   postgres_data:
@@ -181,4 +190,5 @@ volumes:
 
 networks:
   freemarket-network:
+    driver: bridge
 
