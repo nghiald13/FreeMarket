@@ -1,4 +1,4 @@
-package com.ldn.common.response;
+package com.ldn.common.advice;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

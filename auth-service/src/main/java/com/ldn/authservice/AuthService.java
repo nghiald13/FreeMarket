@@ -9,6 +9,8 @@ import com.ldn.authservice.pojo.Account;
 import com.ldn.authservice.repository.AccountRepository;
 import com.ldn.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

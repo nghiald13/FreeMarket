@@ -1,2 +1,3 @@
-com.ldn.common.config.CommonAutoConfiguration
+com.ldn.common.advice.GlobalResponseAutoConfigutation
 com.ldn.common.security.SecurityConfig
+com.ldn.common.redis.RedisAutoConfiguration

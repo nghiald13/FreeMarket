@@ -1,7 +1,5 @@
-package com.ldn.common.config;
+package com.ldn.common.advice;
 
-import com.ldn.common.advice.GlobalExceptionHandler;
-import com.ldn.common.advice.GlobalResponseWrapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -12,7 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfiguration
 @ConditionalOnClass(ResponseBodyAdvice.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-public class CommonAutoConfiguration {
+public class GlobalResponseAutoConfigutation {
 
     @Bean
     public GlobalResponseWrapper globalResponseWrapper(ObjectMapper objectMapper) {
