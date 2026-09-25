@@ -1,13 +1,14 @@
 package com.ldn.common.redis;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 public class RedisService {
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
