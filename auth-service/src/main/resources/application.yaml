@@ -1,6 +1,10 @@
 server:
   port: 8081
 
+jwt:
+  public-key: classpath:certs/public.pem
+  private-key: classpath:certs/private.pem
+
 spring:
   profiles:
     active: dev
@@ -27,6 +31,11 @@ spring:
     redis:
       host: localhost
       port: 6379
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth-service:8081/.well-known/jwks.json
 
   eureka:
     client:

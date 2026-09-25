@@ -2,6 +2,7 @@ package com.ldn.authservice;
 
 import com.ldn.authservice.dto.request.LoginRequest;
 import com.ldn.authservice.dto.request.RegisterRequest;
+import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.dto.response.RegisterResponse;
 import com.ldn.authservice.security.RsaKeyProperties;
 import com.ldn.common.security.Public;
@@ -27,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody @Valid LoginRequest loginRequest) {
+    public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
         return this.authService.login(loginRequest);
     }
 
