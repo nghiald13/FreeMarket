@@ -1,6 +1,7 @@
 package com.ldn.authservice.security;
 
 import com.ldn.authservice.dto.RefreshTokenDto;
+import com.ldn.authservice.exception.InvalidCredentialsException;
 import com.ldn.authservice.pojo.Account;
 import com.ldn.common.redis.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,9 @@ public class JwtService {
         }
     }
 
-    /** Issues a short-lived RS256 access token carrying the user's id/email/roles. */
+    /**
+     * Issues a short-lived RS256 access token carrying the user's id/email/roles.
+     */
     public String generateAccessToken(Account account) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -64,15 +67,26 @@ public class JwtService {
 
     public String generateRefreshToken(Account account) {
         String rawToken = this.randomToken();
-        String cacheKey = String.format("refreshToken:account:%s", account.getId().toString());
+        String cacheKey = String.format("refreshToken:%s", this.hash(rawToken));
         Map<String, Object> mapValue = Map.of(
                 "accountId", account.getId(),
-                "token", this.hash(rawToken),
                 "isRevoked", false
         );
         RefreshTokenDto cacheValue = RefreshTokenDto.fromMap(mapValue);
         this.redisService.set(cacheKey, cacheValue, 1, TimeUnit.DAYS);
         return rawToken;
+    }
+
+    public Long rotateTokens(String rawRefreshToken) {
+        String cacheKey = String.format("refreshToken:%s", hash(rawRefreshToken));
+        RefreshTokenDto refreshTokenDto = this.redisService.get(cacheKey, RefreshTokenDto.class);
+        if (refreshTokenDto == null || refreshTokenDto.isRevoked())
+            //TODO Change this placeholder InvalidCredentialsException
+            throw new InvalidCredentialsException();
+
+        this.redisService.delete(cacheKey);
+        return refreshTokenDto.accountId();
+
     }
 
     public long accessTokenExpirationSeconds() {

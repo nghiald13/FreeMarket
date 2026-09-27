@@ -69,4 +69,11 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshToken, jwtService.accessTokenExpirationSeconds());
     }
 
+    public AuthResponse refreshTokens(String rawRefreshTokens) {
+        Long accountId = this.jwtService.rotateTokens(rawRefreshTokens);
+        //TODO Change this placeholder InvalidCredentialsException
+        Account account = this.accountRepository.findById(accountId).orElseThrow(InvalidCredentialsException::new);
+        return this.issueTokens(account);
+    }
+
 }
