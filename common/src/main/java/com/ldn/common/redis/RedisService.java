@@ -3,12 +3,14 @@ package com.ldn.common.redis;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
@@ -16,6 +18,12 @@ public class RedisService {
 
     public void set(String key, Object value, long timeout, TimeUnit unit) {
         redisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
+
+    public <T> T get(String key, Class<T> type) {
+        Object raw = redisTemplate.opsForValue().get(key);
+        if (raw == null) return null;
+        return objectMapper.convertValue(raw, type);
     }
 
     public Object get(String key) {

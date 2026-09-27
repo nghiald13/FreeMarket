@@ -14,6 +14,12 @@ public class RedisAutoConfiguration {
     public JedisConnectionFactory jedisConnectionFactory() {
         return new JedisConnectionFactory();
     }
+
+    @Bean
+    public ObjectMapper redisObjectMapper() {
+        return new ObjectMapper();
+    }
+
     @Bean
     public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -33,7 +39,7 @@ public class RedisAutoConfiguration {
     }
 
     @Bean
-    public RedisService redisService(RedisTemplate<String, Object> redisTemplate) {
-        return new RedisService(redisTemplate);
+    public RedisService redisService(RedisTemplate<String, Object> redisTemplate, ObjectMapper redisObjectMapper) {
+        return new RedisService(redisTemplate, redisObjectMapper);
     }
 }
