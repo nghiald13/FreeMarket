@@ -47,6 +47,25 @@ services:
     networks:
       - freemarket-network
 
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: freemarket-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - freemarket-network
+
   kafka:
     image: apache/kafka:latest
     container_name: freemarket-kafka
@@ -187,6 +206,7 @@ volumes:
   kafka_data:
   redis_data:
     driver: local
+  rabbitmq_data:
 
 networks:
   freemarket-network:
