@@ -31,6 +31,23 @@ spring:
     redis:
       host: localhost
       port: 6379
+  # TODO This should be Notification Service on its own
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    sender: ${MAIL_SENDER}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
