@@ -2,6 +2,7 @@ package com.ldn.authservice.security;
 
 import com.ldn.authservice.dto.RefreshTokenDto;
 import com.ldn.authservice.exception.InvalidCredentialsException;
+import com.ldn.authservice.exception.InvalidTokenException;
 import com.ldn.authservice.pojo.Account;
 import com.ldn.authservice.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
@@ -60,8 +61,7 @@ public class JwtService {
         String cacheKey = String.format("refreshToken:%s", TokenUtils.sha256(rawRefreshToken));
         RefreshTokenDto refreshTokenDto = this.redisService.get(cacheKey, RefreshTokenDto.class);
         if (refreshTokenDto == null || refreshTokenDto.isRevoked())
-            //TODO Change this placeholder InvalidCredentialsException
-            throw new InvalidCredentialsException();
+            throw new InvalidTokenException();
 
         this.redisService.delete(cacheKey);
         return refreshTokenDto.accountId();

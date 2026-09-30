@@ -5,10 +5,7 @@ import com.ldn.authservice.dto.request.*;
 import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.dto.response.RegisterResponse;
 import com.ldn.authservice.enums.AccountStatus;
-import com.ldn.authservice.exception.AccountExistedException;
-import com.ldn.authservice.exception.AccountInactivedException;
-import com.ldn.authservice.exception.AccountSuspendedException;
-import com.ldn.authservice.exception.InvalidCredentialsException;
+import com.ldn.authservice.exception.*;
 import com.ldn.authservice.pojo.Account;
 import com.ldn.authservice.repository.AccountRepository;
 import com.ldn.authservice.security.JwtService;
@@ -95,7 +92,6 @@ public class AuthService {
 
     public AuthResponse refreshTokens(String rawRefreshTokens) {
         Long accountId = this.jwtService.rotateTokens(rawRefreshTokens);
-        //TODO Change this placeholder InvalidCredentialsException
         Account account = this.accountRepository.findById(accountId).orElseThrow(InvalidCredentialsException::new);
         return this.issueTokens(account);
     }
@@ -139,11 +135,29 @@ public class AuthService {
         String hashKey = TokenUtils.hmacsha256(rawKey, account.getMfaSecret());
         VerifyDto verifyDto = this.redisService.get("verify:%s".formatted(hashKey), VerifyDto.class);
 
-        //TODO Handle otp not matched
+        if (verifyDto == null) throw new InvalidTokenException();
+
         String status = "success";
         if (!verifyDto.otp().equals(otp)) {
-
+            // Flag attempt as failed
             status = "failed";
+
+            // Update attempt
+            int updatedAttempt = verifyDto.currentAttempt() + 1;
+
+            // If exceeds max attempts -> revoke OTP and throw exception
+            if (updatedAttempt == 5) {
+                this.redisService.delete("verify:%s".formatted(hashKey));
+                throw new AccountMfaException();
+            }
+
+            // Else update redis
+            this.redisService.setIfPresentKeepTTL("verify:%s".formatted(hashKey), VerifyDto.builder()
+                    .otp(verifyDto.otp())
+                    .currentAttempt(verifyDto.currentAttempt()+1)
+                    .maxAttempt(verifyDto.maxAttempt())
+                    .build()
+            );
         }
 
         // Logging attempt
