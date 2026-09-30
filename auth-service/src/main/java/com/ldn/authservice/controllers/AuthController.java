@@ -1,7 +1,6 @@
-package com.ldn.authservice;
+package com.ldn.authservice.controllers;
 
-import com.ldn.authservice.dto.request.LoginRequest;
-import com.ldn.authservice.dto.request.RegisterRequest;
+import com.ldn.authservice.dto.request.*;
 import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.dto.response.RegisterResponse;
 import com.ldn.authservice.security.RsaKeyProperties;
@@ -15,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
     private final RsaKeyProperties rsaKeys;
+
 
     @Public
     @PostMapping("/register")
@@ -46,4 +45,23 @@ public class AuthController {
     public AuthResponse refreshTokens(@RequestHeader("X-Refresh-Token") String rawRefreshToken) {
         return this.authService.refreshTokens(rawRefreshToken);
     }
+
+    @Public
+    @PostMapping("/verify/process")
+    public String verifyProcessRequest(@RequestBody() @Valid VerifyProcessRequest verifyProcessRequest) {
+        return this.authService.verifyProcessRequest(verifyProcessRequest);
+    }
+
+    @Public
+    @PostMapping("/verify/request")
+    public void verifyEmailRequest(@RequestBody() @Valid VerifyEmailRequest verifyEmailRequest) {
+        this.authService.verifyEmailRequest(verifyEmailRequest);
+    }
+
+    @Public
+    @PostMapping("/verify/proceed")
+    public AuthResponse verifyProceedRequest(@RequestBody() @Valid VerifyProceedRequest verifyProceedRequest) {
+        return this.authService.verifyProceedRequest(verifyProceedRequest);
+    }
+
 }
