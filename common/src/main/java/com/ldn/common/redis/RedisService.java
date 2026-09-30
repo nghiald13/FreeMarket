@@ -3,6 +3,8 @@ package com.ldn.common.redis;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetSpec;
+import org.springframework.data.redis.core.types.Expiration;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,10 @@ public class RedisService {
 
     public void set(String key, Object value, long timeout, TimeUnit unit) {
         redisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
+
+    public void setIfPresentKeepTTL(String key, Object value) {
+        redisTemplate.opsForValue().setIfPresent(key, value, Expiration.keepTtl());
     }
 
     public <T> T get(String key, Class<T> type) {
