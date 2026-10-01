@@ -8,7 +8,6 @@ import com.ldn.authservice.enums.AccountStatus;
 import com.ldn.authservice.exception.*;
 import com.ldn.authservice.pojo.Account;
 import com.ldn.authservice.repository.AccountRepository;
-import com.ldn.authservice.security.JwtService;
 import com.ldn.authservice.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
 import com.ldn.common.utils.Utils;
@@ -26,8 +25,11 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private final RedisService redisService;
     private final MailService mailService;
-
     private final JwtService jwtService;
+
+    public Account findById(Long id) {
+        return this.accountRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
+    }
 
     public RegisterResponse createAccount(RegisterRequest userInfo) {
         // Check uniqueness of email and phone
@@ -81,20 +83,9 @@ public class AuthService {
         if (account.getStatus().equals(AccountStatus.SUSPENDED)) throw new AccountSuspendedException();
 
         // Sign JWT tokens pair on success
-        return this.issueTokens(account);
+        return this.jwtService.issueTokens(account);
     }
 
-    public AuthResponse issueTokens(Account account) {
-        String accessToken = this.jwtService.generateAccessToken(account);
-        String refreshToken = this.jwtService.generateRefreshToken(account);
-        return new AuthResponse(accessToken, refreshToken, jwtService.accessTokenExpirationSeconds());
-    }
-
-    public AuthResponse refreshTokens(String rawRefreshTokens) {
-        Long accountId = this.jwtService.rotateTokens(rawRefreshTokens);
-        Account account = this.accountRepository.findById(accountId).orElseThrow(InvalidCredentialsException::new);
-        return this.issueTokens(account);
-    }
 
     public String verifyProcessRequest(VerifyProcessRequest verifyProcessRequest) {
         // Prepare data
@@ -169,7 +160,7 @@ public class AuthService {
         this.accountRepository.save(account);
 
         // Auto login
-        return this.issueTokens(account);
+        return this.jwtService.issueTokens(account);
     }
 
 
