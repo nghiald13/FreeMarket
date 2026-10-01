@@ -1,6 +1,7 @@
-package com.ldn.authservice.security;
+package com.ldn.authservice.services;
 
 import com.ldn.authservice.dto.RefreshTokenDto;
+import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.exception.InvalidCredentialsException;
 import com.ldn.authservice.exception.InvalidTokenException;
 import com.ldn.authservice.pojo.Account;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtService {
     private final JwtEncoder jwtEncoder;
     private final RedisService redisService;
+    private final AuthService authService;
 
     @Value("${jwt.access-token-expiration-minutes:15}")
     private long accessTokenExpirationMinutes;
@@ -31,7 +33,7 @@ public class JwtService {
     /**
      * Issues a short-lived RS256 access token carrying the user's id/email/roles.
      */
-    public String generateAccessToken(Account account) {
+    private String generateAccessToken(Account account) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("auth-service")
@@ -45,7 +47,7 @@ public class JwtService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String generateRefreshToken(Account account) {
+    private String generateRefreshToken(Account account) {
         String rawToken = TokenUtils.randomToken(64);
         String cacheKey = String.format("refreshToken:%s", TokenUtils.sha256(rawToken));
         Map<String, Object> mapValue = Map.of(
@@ -57,7 +59,7 @@ public class JwtService {
         return rawToken;
     }
 
-    public Long rotateTokens(String rawRefreshToken) {
+    private Long rotateTokens(String rawRefreshToken) {
         String cacheKey = String.format("refreshToken:%s", TokenUtils.sha256(rawRefreshToken));
         RefreshTokenDto refreshTokenDto = this.redisService.get(cacheKey, RefreshTokenDto.class);
         if (refreshTokenDto == null || refreshTokenDto.isRevoked())
@@ -68,7 +70,19 @@ public class JwtService {
 
     }
 
-    public long accessTokenExpirationSeconds() {
+    private long accessTokenExpirationSeconds() {
         return accessTokenExpirationMinutes * 60;
+    }
+
+    public AuthResponse issueTokens(Account account) {
+        String accessToken = this.generateAccessToken(account);
+        String refreshToken = this.generateRefreshToken(account);
+        return new AuthResponse(accessToken, refreshToken, this.accessTokenExpirationSeconds());
+    }
+
+    public AuthResponse refreshTokens(String rawRefreshTokens) {
+        Long accountId = this.rotateTokens(rawRefreshTokens);
+        Account account = this.authService.findById(accountId);
+        return this.issueTokens(account);
     }
 }
