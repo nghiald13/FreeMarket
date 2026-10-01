@@ -67,7 +67,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://auth-service:8081/.well-known/jwks.json
+          jwk-set-uri: http://auth-service:8081/token/.well-known/jwks.json
 
   eureka:
     client:
