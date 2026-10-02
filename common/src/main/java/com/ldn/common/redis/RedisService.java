@@ -1,9 +1,7 @@
 package com.ldn.common.redis;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SetSpec;
 import org.springframework.data.redis.core.types.Expiration;
 import tools.jackson.databind.ObjectMapper;
 
@@ -28,6 +26,12 @@ public class RedisService {
 
     public <T> T get(String key, Class<T> type) {
         Object raw = redisTemplate.opsForValue().get(key);
+        if (raw == null) return null;
+        return objectMapper.convertValue(raw, type);
+    }
+
+    public <T> T getAndDelete(String key, Class<T> type) {
+        Object raw = this.redisTemplate.opsForValue().getAndDelete(key);
         if (raw == null) return null;
         return objectMapper.convertValue(raw, type);
     }
