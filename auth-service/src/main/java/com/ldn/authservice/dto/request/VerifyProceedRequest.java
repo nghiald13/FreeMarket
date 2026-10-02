@@ -9,9 +9,6 @@ public record VerifyProceedRequest(
         String key,
 
         @Pattern(regexp = "^\\d{6}$")
-        String otp,
-
-        @Email
-        String email
+        String otp
 ) {
 }
