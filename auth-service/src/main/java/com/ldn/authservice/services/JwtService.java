@@ -2,7 +2,6 @@ package com.ldn.authservice.services;
 
 import com.ldn.authservice.dto.RefreshTokenDto;
 import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.exception.InvalidCredentialsException;
 import com.ldn.authservice.exception.InvalidTokenException;
 import com.ldn.authservice.pojo.Account;
 import com.ldn.authservice.utils.TokenUtils;
@@ -25,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 public class JwtService {
     private final JwtEncoder jwtEncoder;
     private final RedisService redisService;
-    private final AuthService authService;
 
     @Value("${jwt.access-token-expiration-minutes:15}")
     private long accessTokenExpirationMinutes;
@@ -59,15 +57,13 @@ public class JwtService {
         return rawToken;
     }
 
-    private Long rotateTokens(String rawRefreshToken) {
+    public Long rotateTokens(String rawRefreshToken) {
         String cacheKey = String.format("refreshToken:%s", TokenUtils.sha256(rawRefreshToken));
-        RefreshTokenDto refreshTokenDto = this.redisService.get(cacheKey, RefreshTokenDto.class);
+        RefreshTokenDto refreshTokenDto = this.redisService.getAndDelete(cacheKey, RefreshTokenDto.class);
         if (refreshTokenDto == null || refreshTokenDto.isRevoked())
             throw new InvalidTokenException();
 
-        this.redisService.delete(cacheKey);
         return refreshTokenDto.accountId();
-
     }
 
     private long accessTokenExpirationSeconds() {
@@ -78,11 +74,5 @@ public class JwtService {
         String accessToken = this.generateAccessToken(account);
         String refreshToken = this.generateRefreshToken(account);
         return new AuthResponse(accessToken, refreshToken, this.accessTokenExpirationSeconds());
-    }
-
-    public AuthResponse refreshTokens(String rawRefreshTokens) {
-        Long accountId = this.rotateTokens(rawRefreshTokens);
-        Account account = this.authService.findById(accountId);
-        return this.issueTokens(account);
     }
 }
