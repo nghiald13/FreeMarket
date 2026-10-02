@@ -10,6 +10,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -22,6 +23,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse createAccount(@RequestBody @Valid RegisterRequest registerRequest) {
         return this.authService.createAccount(registerRequest);
     }
@@ -45,5 +47,17 @@ public class AuthController {
     public AuthResponse verifyProceedRequest(@RequestBody() @Valid VerifyProceedRequest verifyProceedRequest) {
         return this.authService.verifyProceedRequest(verifyProceedRequest);
     }
+
+    @PostMapping("/forgotPW")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void forgotPasswordRequest(@RequestBody() @Valid ForgotPasswordRequest forgotPasswordRequest) {
+        this.authService.forgotPasswordRequest(forgotPasswordRequest);
+    }
+
+    @PostMapping("/resetPW")
+    public AuthResponse resetPasswordRequest(@RequestBody() @Valid ResetPasswordRequest resetPasswordRequest) {
+        return this.authService.resetPasswordRequest(resetPasswordRequest);
+    }
+
 
 }
