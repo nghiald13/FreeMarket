@@ -95,6 +95,12 @@ public class AuthService {
         String hashKey = TokenUtils.hmacsha256(rawKey, account.getMfaSecret());
 
         this.redisService.set(
+                "verify:resolve:%s".formatted(rawKey),
+                account.getEmail(),
+                5, TimeUnit.MINUTES
+        );
+
+        this.redisService.set(
                 String.format("verify:%s", hashKey),
                 new VerifyDto(otp),
                 5, TimeUnit.MINUTES
@@ -106,10 +112,16 @@ public class AuthService {
         return rawKey;
     }
 
-    // Uss Case: User request Resend Verification Email
+    private String verifyResolve(String token) {
+        String email = this.redisService.get("verify:resolve:%s".formatted(token), String.class);
+        if (email.isEmpty()) throw new InvalidTokenException();
+        return email;
+    }
+
+    // Use Case: User request Resend Verification Email
     public void verifyEmailRequest(VerifyEmailRequest verifyEmailRequest) {
-        String email = verifyEmailRequest.email();
         String rawKey = verifyEmailRequest.key();
+        String email = this.verifyResolve(rawKey);
         Account account = this.accountRepository.findByEmailOrPhone(email).orElseThrow(InvalidCredentialsException::new);
         if (account.getStatus().equals(AccountStatus.ACTIVE)) return;
         String hashKey = TokenUtils.hmacsha256(rawKey, account.getMfaSecret());
@@ -119,8 +131,9 @@ public class AuthService {
 
     public AuthResponse verifyProceedRequest(VerifyProceedRequest verifyProceedRequest) {
         // User make verify proceed request via frontend, send with request body { key (rawKey signed above), otp, email }
-        Account account = this.accountRepository.findByEmailOrPhone(verifyProceedRequest.email()).orElseThrow(InvalidCredentialsException::new);
         String rawKey = verifyProceedRequest.key();
+        String email = this.verifyResolve(rawKey);
+        Account account = this.accountRepository.findByEmailOrPhone(email).orElseThrow(InvalidCredentialsException::new);
         String otp = verifyProceedRequest.otp();
 
         String hashKey = TokenUtils.hmacsha256(rawKey, account.getMfaSecret());
@@ -129,6 +142,8 @@ public class AuthService {
         if (verifyDto == null) throw new InvalidTokenException();
 
         String status = "success";
+
+        // Wrong OTP Input
         if (!verifyDto.otp().equals(otp)) {
             // Flag attempt as failed
             status = "failed";
@@ -153,15 +168,24 @@ public class AuthService {
 
         // Logging attempt
         this.loginLogsService.log(account, "mfa", status);
+        //TODO Make new exception for Wrong OTP Input
         if (status.equals("failed")) throw new InvalidCredentialsException();
 
         // All passed
         account.setStatus(AccountStatus.ACTIVE);
         this.accountRepository.save(account);
 
+        // Consume tokens
+        this.redisService.delete("verify:resolve:%s".formatted(rawKey));
+        this.redisService.delete("verify:%s".formatted(hashKey));
+
         // Auto login
         return this.jwtService.issueTokens(account);
     }
 
-
+    public AuthResponse refreshTokens(String rawRefreshToken) {
+        Long accountId = this.jwtService.rotateTokens(rawRefreshToken);
+        Account account = this.accountRepository.findById(accountId).orElseThrow(InvalidCredentialsException::new);
+        return this.jwtService.issueTokens(account);
+    }
 }
