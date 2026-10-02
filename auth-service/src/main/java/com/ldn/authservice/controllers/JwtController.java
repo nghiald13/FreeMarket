@@ -2,7 +2,7 @@ package com.ldn.authservice.controllers;
 
 import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.security.RsaKeyProperties;
-import com.ldn.authservice.services.JwtService;
+import com.ldn.authservice.services.AuthService;
 import com.ldn.common.security.Public;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -15,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/token")
 public class JwtController {
-    private final JwtService jwtService;
+    private final AuthService authService;
     private final RsaKeyProperties rsaKeys;
 
     @Public
@@ -27,7 +27,7 @@ public class JwtController {
 
     @PostMapping("/refresh")
     public AuthResponse refreshTokens(@RequestHeader("X-Refresh-Token") String rawRefreshToken) {
-        return this.jwtService.refreshTokens(rawRefreshToken);
+        return this.authService.refreshTokens(rawRefreshToken);
     }
 
 
