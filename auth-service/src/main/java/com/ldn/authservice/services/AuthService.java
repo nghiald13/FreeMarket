@@ -12,6 +12,7 @@ import com.ldn.authservice.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
 import com.ldn.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ public class AuthService {
     private final RedisService redisService;
     private final MailService mailService;
     private final JwtService jwtService;
+
+    @Value("${frontend.url}")
+    private String frontendURL;
 
     public Account findById(Long id) {
         return this.accountRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
@@ -86,19 +90,22 @@ public class AuthService {
         return this.jwtService.issueTokens(account);
     }
 
+    private String createAuthSession(String email) {
+        String rawKey = TokenUtils.randomToken(32);
+        this.redisService.set(
+                "verify:resolve:%s".formatted(rawKey),
+                email,
+                5, TimeUnit.MINUTES
+        );
+        return rawKey;
+    }
 
     public String verifyProcessRequest(VerifyProcessRequest verifyProcessRequest) {
         // Prepare data
         Account account = this.accountRepository.findByEmailOrPhone(verifyProcessRequest.email()).orElseThrow(InvalidCredentialsException::new);
         String otp = TokenUtils.randomOtp();
-        String rawKey = TokenUtils.randomToken(32);
+        String rawKey = this.createAuthSession(account.getEmail());
         String hashKey = TokenUtils.hmacsha256(rawKey, account.getMfaSecret());
-
-        this.redisService.set(
-                "verify:resolve:%s".formatted(rawKey),
-                account.getEmail(),
-                5, TimeUnit.MINUTES
-        );
 
         this.redisService.set(
                 String.format("verify:%s", hashKey),
@@ -114,7 +121,7 @@ public class AuthService {
 
     private String verifyResolve(String token) {
         String email = this.redisService.get("verify:resolve:%s".formatted(token), String.class);
-        if (email.isEmpty()) throw new InvalidTokenException();
+        if (email == null) throw new InvalidTokenException();
         return email;
     }
 
@@ -160,7 +167,7 @@ public class AuthService {
             // Else update redis
             this.redisService.setIfPresentKeepTTL("verify:%s".formatted(hashKey), VerifyDto.builder()
                     .otp(verifyDto.otp())
-                    .currentAttempt(verifyDto.currentAttempt()+1)
+                    .currentAttempt(verifyDto.currentAttempt() + 1)
                     .maxAttempt(verifyDto.maxAttempt())
                     .build()
             );
@@ -188,4 +195,40 @@ public class AuthService {
         Account account = this.accountRepository.findById(accountId).orElseThrow(InvalidCredentialsException::new);
         return this.jwtService.issueTokens(account);
     }
+
+    public void forgotPasswordRequest(ForgotPasswordRequest forgotPasswordRequest) {
+        Account account = this.accountRepository.findByEmailOrPhone(forgotPasswordRequest.email()).orElseThrow(InvalidCredentialsException::new);
+        String rawToken = this.createAuthSession(account.getEmail());
+        String hashToken = TokenUtils.hmacsha256(rawToken, account.getMfaSecret());
+
+        StringBuilder magicLink = new StringBuilder();
+        magicLink.append(frontendURL).append("/auth/resetPW?token=%s".formatted(rawToken));
+
+        this.redisService.set("verify:%s".formatted(hashToken), magicLink.toString(), 5, TimeUnit.MINUTES);
+        this.mailService.sendOtpEmail(account.getEmail(), magicLink.toString());
+    }
+
+    public AuthResponse resetPasswordRequest(ResetPasswordRequest resetPasswordRequest) {
+        String email = this.verifyResolve(resetPasswordRequest.token());
+        Account account = this.accountRepository.findByEmailOrPhone(email).orElseThrow(InvalidCredentialsException::new);
+        String hashKey = TokenUtils.hmacsha256(resetPasswordRequest.token(), account.getMfaSecret());
+        boolean verified = this.redisService.hasKey("verify:%s".formatted(hashKey));
+        if (!verified) throw new InvalidTokenException();
+
+        boolean isOldPassword = this.encoder.matches(resetPasswordRequest.password(),  account.getPassword());
+        if (isOldPassword) throw new OldPasswordException();
+
+        String hashPassword = this.encoder.encode(resetPasswordRequest.password());
+        account.setPassword(hashPassword);
+        this.accountRepository.save(account);
+
+        //TODO Revoke all account accessTokens and refreshTokens
+
+        // Consume tokens
+        this.redisService.delete("verify:resolve:%s".formatted(resetPasswordRequest.token()));
+        this.redisService.delete("verify:%s".formatted(hashKey));
+
+        return this.jwtService.issueTokens(account);
+    }
+
 }
