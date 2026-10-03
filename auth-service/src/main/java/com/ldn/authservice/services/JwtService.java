@@ -2,7 +2,6 @@ package com.ldn.authservice.services;
 
 import com.ldn.authservice.dto.RefreshTokenDto;
 import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.exception.InvalidTokenException;
 import com.ldn.authservice.pojo.Account;
 import com.ldn.authservice.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -47,21 +46,24 @@ public class JwtService {
 
     private String generateRefreshToken(Account account) {
         String rawToken = TokenUtils.randomToken(64);
-        String cacheKey = String.format("refreshToken:%s", TokenUtils.sha256(rawToken));
-        Map<String, Object> mapValue = Map.of(
-                "accountId", account.getId(),
-                "isRevoked", false
-        );
-        RefreshTokenDto cacheValue = RefreshTokenDto.fromMap(mapValue);
-        this.redisService.set(cacheKey, cacheValue, 1, TimeUnit.DAYS);
+        String hashToken = TokenUtils.sha256(rawToken);
+        String cacheKey = "refreshTokens:%s".formatted(hashToken);
+        RefreshTokenDto refreshTokenDto = new RefreshTokenDto(account.getId());
+        this.redisService.set(cacheKey, refreshTokenDto, 1, TimeUnit.DAYS);
+
+        String accountTokens = "tokens:account:%s".formatted(account.getId());
+        this.redisService.sSet(accountTokens, hashToken, 1, TimeUnit.DAYS);
+
         return rawToken;
     }
 
     public Long rotateTokens(String rawRefreshToken) {
-        String cacheKey = String.format("refreshToken:%s", TokenUtils.sha256(rawRefreshToken));
+        String hashToken = TokenUtils.sha256(rawRefreshToken);
+        String cacheKey = "refreshToken:%s".formatted(hashToken);
         RefreshTokenDto refreshTokenDto = this.redisService.getAndDelete(cacheKey, RefreshTokenDto.class);
-        if (refreshTokenDto == null || refreshTokenDto.isRevoked())
-            throw new InvalidTokenException();
+
+        String accountTokens = "token:account:%s".formatted(refreshTokenDto.accountId());
+        this.redisService.sDelete(accountTokens, hashToken);
 
         return refreshTokenDto.accountId();
     }
@@ -74,5 +76,14 @@ public class JwtService {
         String accessToken = this.generateAccessToken(account);
         String refreshToken = this.generateRefreshToken(account);
         return new AuthResponse(accessToken, refreshToken, this.accessTokenExpirationSeconds());
+    }
+
+    public void revokeTokens(Long accountId) {
+        String accountTokens = "tokens:account:%s".formatted(accountId);
+        Set<String> tokens = this.redisService.sMember(accountTokens, String.class);
+        tokens.forEach(token -> {
+            this.redisService.delete("refreshTokens:%s".formatted(token));
+        });
+        this.redisService.delete(accountTokens);
     }
 }
