@@ -5,7 +5,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class RedisService {
@@ -47,4 +49,19 @@ public class RedisService {
     public boolean hasKey(String key) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
+
+    public <T> Set<T> sMember(String key, Class<T> type) {
+        Set<Object> objects = this.redisTemplate.opsForSet().members(key);
+        return objects.stream().map(object -> objectMapper.convertValue(object, type)).collect(Collectors.toSet());
+    }
+
+    public void sSet(String key, Object value, long timeout, TimeUnit unit) {
+        this.redisTemplate.opsForSet().add(key, value);
+        this.redisTemplate.expire(key, Expiration.from(timeout, unit));
+    }
+
+    public void sDelete(String key, String value) {
+        this.redisTemplate.opsForSet().remove(key, value);
+    }
+
 }
