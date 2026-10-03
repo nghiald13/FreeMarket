@@ -1,4 +1,4 @@
-package com.ldn.inventoryservice.exception;
+package com.ldn.inventoryservice.exceptions;
 
 import com.ldn.common.exception.BusinessException;
 import org.springframework.http.HttpStatus;

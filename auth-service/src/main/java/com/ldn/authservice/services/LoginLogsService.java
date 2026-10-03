@@ -1,8 +1,8 @@
 package com.ldn.authservice.services;
 
-import com.ldn.authservice.pojo.Account;
-import com.ldn.authservice.pojo.LoginLogs;
-import com.ldn.authservice.repository.LoginLogsRepository;
+import com.ldn.authservice.entities.Account;
+import com.ldn.authservice.entities.LoginLogs;
+import com.ldn.authservice.repositories.LoginLogsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

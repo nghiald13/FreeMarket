@@ -1,4 +1,4 @@
-package com.ldn.inventoryservice.pojo;
+package com.ldn.inventoryservice.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

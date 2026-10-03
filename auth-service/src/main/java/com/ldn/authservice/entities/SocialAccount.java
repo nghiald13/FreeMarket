@@ -1,10 +1,7 @@
-package com.ldn.authservice.pojo;
+package com.ldn.authservice.entities;
 import com.ldn.authservice.enums.SocialAccountProvider;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(

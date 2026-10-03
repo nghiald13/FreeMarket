@@ -1,12 +1,11 @@
-package com.ldn.inventoryservice;
+package com.ldn.inventoryservice.services;
 
 import com.ldn.inventoryservice.dto.request.CartRequest;
 import com.ldn.inventoryservice.dto.response.CartDetailResponse;
-import com.ldn.inventoryservice.exception.InvalidCartException;
-import com.ldn.inventoryservice.pojo.Product;
-import com.ldn.inventoryservice.repository.ProductRepository;
+import com.ldn.inventoryservice.exceptions.InvalidCartException;
+import com.ldn.inventoryservice.entities.Product;
+import com.ldn.inventoryservice.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

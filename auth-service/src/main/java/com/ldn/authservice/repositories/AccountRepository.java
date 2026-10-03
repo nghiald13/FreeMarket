@@ -1,10 +1,9 @@
-package com.ldn.authservice.repository;
+package com.ldn.authservice.repositories;
 
-import com.ldn.authservice.pojo.Account;
+import com.ldn.authservice.entities.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {

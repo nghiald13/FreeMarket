@@ -1,4 +1,4 @@
-package com.ldn.authservice.exception;
+package com.ldn.authservice.exceptions;
 
 import com.ldn.common.exception.BusinessException;
 

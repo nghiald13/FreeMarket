@@ -5,9 +5,9 @@ import com.ldn.authservice.dto.request.*;
 import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.dto.response.RegisterResponse;
 import com.ldn.authservice.enums.AccountStatus;
-import com.ldn.authservice.exception.*;
-import com.ldn.authservice.pojo.Account;
-import com.ldn.authservice.repository.AccountRepository;
+import com.ldn.authservice.exceptions.*;
+import com.ldn.authservice.entities.Account;
+import com.ldn.authservice.repositories.AccountRepository;
 import com.ldn.authservice.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
 import com.ldn.common.utils.Utils;
@@ -176,8 +176,7 @@ public class AuthService {
 
         // Logging attempt
         this.loginLogsService.log(account, "mfa", status);
-        //TODO Make new exception for Wrong OTP Input
-        if (status.equals("failed")) throw new InvalidCredentialsException();
+        if (status.equals("failed")) throw new InvalidTokenException();
 
         // All passed
         account.setStatus(AccountStatus.ACTIVE);

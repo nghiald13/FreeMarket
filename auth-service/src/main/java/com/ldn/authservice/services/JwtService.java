@@ -2,7 +2,7 @@ package com.ldn.authservice.services;
 
 import com.ldn.authservice.dto.RefreshTokenDto;
 import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.pojo.Account;
+import com.ldn.authservice.entities.Account;
 import com.ldn.authservice.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
 import lombok.RequiredArgsConstructor;

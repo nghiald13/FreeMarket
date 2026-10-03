@@ -1,6 +1,6 @@
 package com.ldn.inventoryservice.dto.response;
 
-import com.ldn.inventoryservice.pojo.Product;
+import com.ldn.inventoryservice.entities.Product;
 
 public record ResponseAddListProduct(Long id, String name, Integer quantity, Long price) {
     public static ResponseAddListProduct fromEntity(Product product) {

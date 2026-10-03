@@ -1,11 +1,9 @@
-package com.ldn.authservice.repository;
+package com.ldn.authservice.repositories;
 
-import com.ldn.authservice.pojo.Account;
-import com.ldn.authservice.pojo.LoginLogs;
+import com.ldn.authservice.entities.Account;
+import com.ldn.authservice.entities.LoginLogs;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 public interface LoginLogsRepository extends JpaRepository<LoginLogs, Long> {
     @Query("""

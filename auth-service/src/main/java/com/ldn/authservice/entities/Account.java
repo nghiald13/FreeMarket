@@ -1,4 +1,4 @@
-package com.ldn.authservice.pojo;
+package com.ldn.authservice.entities;
 
 import com.ldn.authservice.enums.AccountStatus;
 import jakarta.persistence.*;

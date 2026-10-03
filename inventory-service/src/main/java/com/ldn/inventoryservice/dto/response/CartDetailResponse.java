@@ -1,6 +1,6 @@
 package com.ldn.inventoryservice.dto.response;
 
-import com.ldn.inventoryservice.pojo.Product;
+import com.ldn.inventoryservice.entities.Product;
 
 public record CartDetailResponse(Long productId, String name, Long price, Integer quantity) {
     public static CartDetailResponse fromEntity(Product product, Integer quantityRequest) {

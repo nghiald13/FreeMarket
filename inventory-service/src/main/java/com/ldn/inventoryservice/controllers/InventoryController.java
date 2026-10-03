@@ -1,12 +1,12 @@
-package com.ldn.inventoryservice;
+package com.ldn.inventoryservice.controllers;
 
 import com.ldn.common.security.Public;
+import com.ldn.inventoryservice.services.InventoryService;
 import com.ldn.inventoryservice.dto.request.CartRequest;
 import com.ldn.inventoryservice.dto.response.CartDetailResponse;
-import com.ldn.inventoryservice.pojo.Product;
+import com.ldn.inventoryservice.entities.Product;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
