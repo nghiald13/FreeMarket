@@ -1,15 +1,6 @@
 package com.ldn.authservice.dto;
 
-import java.util.Map;
-
 public record RefreshTokenDto(
-        Long accountId,
-        boolean isRevoked
+        Long accountId
 ) {
-    public static RefreshTokenDto fromMap(Map<String, Object> map) {
-        return new RefreshTokenDto(
-                (Long) map.get("accountId"),
-                (Boolean) map.get("isRevoked")
-        );
-    }
 }

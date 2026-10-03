@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
@@ -208,6 +209,7 @@ public class AuthService {
         this.mailService.sendOtpEmail(account.getEmail(), magicLink.toString());
     }
 
+    @Transactional
     public AuthResponse resetPasswordRequest(ResetPasswordRequest resetPasswordRequest) {
         String email = this.verifyResolve(resetPasswordRequest.token());
         Account account = this.accountRepository.findByEmailOrPhone(email).orElseThrow(InvalidCredentialsException::new);
@@ -222,7 +224,7 @@ public class AuthService {
         account.setPassword(hashPassword);
         this.accountRepository.save(account);
 
-        //TODO Revoke all account accessTokens and refreshTokens
+        this.jwtService.revokeTokens(account.getId());
 
         // Consume tokens
         this.redisService.delete("verify:resolve:%s".formatted(resetPasswordRequest.token()));
