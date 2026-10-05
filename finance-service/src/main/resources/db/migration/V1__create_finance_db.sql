@@ -6,7 +6,7 @@ CREATE TABLE wallets (
     account_id BIGINT NULL,                       -- Auth Service accounts.id; NULL nếu là ví hệ thống
     wallet_type VARCHAR(30) NOT NULL
         CHECK (wallet_type IN ('CUSTOMER', 'MERCHANT', 'SYSTEM_ESCROW', 'SYSTEM_REVENUE')),
-    currency CHAR(3) NOT NULL DEFAULT 'VND',
+    currency VARCHAR(3) NOT NULL DEFAULT 'VND',
     balance NUMERIC(19,2) NOT NULL DEFAULT 0 CHECK (balance >= 0),
     held_balance NUMERIC(19,2) NOT NULL DEFAULT 0 CHECK (held_balance >= 0), -- tiền đang bị khóa (rút tiền chờ duyệt...)
     status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE'
@@ -36,7 +36,7 @@ CREATE TABLE ledger_transactions (
                         'REFUND', 'TRANSFER', 'ADJUSTMENT', 'REVERSAL')),
     status VARCHAR(30) NOT NULL DEFAULT 'POSTED'
         CHECK (status IN ('POSTED', 'REVERSED')),
-    currency CHAR(3) NOT NULL DEFAULT 'VND',
+    currency VARCHAR(3) NOT NULL DEFAULT 'VND',
     amount NUMERIC(19,2) NOT NULL CHECK (amount > 0),
     reference_type VARCHAR(30) NULL,              -- 'ORDER', 'PAYMENT', 'REFUND', 'WITHDRAWAL'
     reference_id VARCHAR(64) NULL,
@@ -72,7 +72,7 @@ CREATE TABLE payments (
     account_id BIGINT NOT NULL,                   -- người trả tiền
     amount NUMERIC(19,2) NOT NULL CHECK (amount > 0),
     refunded_amount NUMERIC(19,2) NOT NULL DEFAULT 0 CHECK (refunded_amount >= 0),
-    currency CHAR(3) NOT NULL DEFAULT 'VND',
+    currency VARCHAR(3) NOT NULL DEFAULT 'VND',
     method VARCHAR(30) NOT NULL
         CHECK (method IN ('WALLET', 'COD', 'BANK_TRANSFER', 'CARD', 'VNPAY', 'MOMO', 'ZALOPAY')),
     provider VARCHAR(30) NULL,                    -- NULL nếu WALLET / COD
@@ -158,7 +158,7 @@ CREATE TABLE withdrawals (
     wallet_id BIGINT NOT NULL REFERENCES wallets(id),
     amount NUMERIC(19,2) NOT NULL CHECK (amount > 0),
     fee NUMERIC(19,2) NOT NULL DEFAULT 0 CHECK (fee >= 0),
-    currency CHAR(3) NOT NULL DEFAULT 'VND',
+    currency VARCHAR(3) NOT NULL DEFAULT 'VND',
     bank_code VARCHAR(20) NOT NULL,               -- snapshot thông tin ngân hàng tại thời điểm rút
     bank_account_no VARCHAR(30) NOT NULL,
     bank_account_name VARCHAR(100) NOT NULL,

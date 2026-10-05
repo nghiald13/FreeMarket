@@ -1,4 +1,4 @@
 package com.ldn.financeservice.enums;
 
-public class LedgerTransactionType {
+public enum LedgerTransactionType {
 }

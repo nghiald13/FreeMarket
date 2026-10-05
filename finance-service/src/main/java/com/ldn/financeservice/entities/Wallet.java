@@ -42,7 +42,7 @@ public class Wallet {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 30, nullable = false)
     @Builder.Default
-    private WalletStatus status = WalletStatus.ACTIVE;
+    private WalletStatus status = WalletStatus.INACTIVE;
 
     @Version
     @Column(name = "version", nullable = false)
