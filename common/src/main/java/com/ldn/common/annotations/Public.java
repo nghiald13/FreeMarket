@@ -1,4 +1,4 @@
-package com.ldn.common.security;
+package com.ldn.common.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -11,6 +11,9 @@ spring:
     active: dev
   application:
     name: auth-service
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url:
     username:

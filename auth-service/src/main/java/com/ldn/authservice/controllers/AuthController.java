@@ -3,17 +3,12 @@ package com.ldn.authservice.controllers;
 import com.ldn.authservice.dto.request.*;
 import com.ldn.authservice.dto.response.AuthResponse;
 import com.ldn.authservice.dto.response.RegisterResponse;
-import com.ldn.authservice.security.RsaKeyProperties;
 import com.ldn.authservice.services.AuthService;
-import com.ldn.common.security.Public;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
+import com.ldn.common.annotations.Public;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Public
 @RestController

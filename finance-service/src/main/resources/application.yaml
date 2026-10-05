@@ -6,6 +6,9 @@ spring:
     active: dev
   application:
     name: finance-service
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url:
     username:
@@ -52,4 +55,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://auth-service:8081/token/.well-known/jwks.json
+          jwk-set-uri: http://auth-service:8081/auth/token/.well-known/jwks.json
