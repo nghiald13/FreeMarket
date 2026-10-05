@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,15 +25,18 @@ public class JwtConfig {
 
     private final RsaKeyProperties rsaKeys;
 
+    @Bean
+    public RSAKey rsaJwk(@Value("${jwt.key-id}") String kid) {
+        return new RSAKey.Builder(rsaKeys.publicKey())
+                .privateKey(rsaKeys.privateKey())
+                .keyID(kid)
+                .build();
+    }
+
     /** Encodes (signs) JwtClaimsSet -> compact JWT string, used when issuing tokens. */
     @Bean
-    public JwtEncoder jwtEncoder() {
-        RSAKey rsaKey = new RSAKey.Builder(rsaKeys.publicKey())
-                .privateKey(rsaKeys.privateKey())
-                .keyID(UUID.randomUUID().toString())
-                .build();
-        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(rsaKey));
-        return new NimbusJwtEncoder(jwks);
+    public JwtEncoder jwtEncoder(RSAKey rsaJwk) {
+        return new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsaJwk)));
     }
 
     /** Decodes + verifies a JWT signature using the public key only. */
