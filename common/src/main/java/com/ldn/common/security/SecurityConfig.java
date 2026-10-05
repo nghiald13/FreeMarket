@@ -1,11 +1,10 @@
 package com.ldn.common.security;
 
-import lombok.RequiredArgsConstructor;
+import com.ldn.common.annotations.Public;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

@@ -1,5 +1,6 @@
 package com.ldn.common.advice;
 
+import com.ldn.common.annotations.RawResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -21,7 +22,12 @@ public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return true; // luôn cho chạy, quyết định thật sự nằm ở beforeBodyWrite
+        // Kiểm tra xem Method hoặc Class Controller có gắn @RawResponse hay không
+        boolean isRawOnMethod = returnType.hasMethodAnnotation(RawResponse.class);
+        boolean isRawOnClass = returnType.getContainingClass().isAnnotationPresent(RawResponse.class);
+
+        // Nếu có @RawResponse thì trả về false -> Bỏ qua wrapper
+        return !(isRawOnMethod || isRawOnClass);
     }
 
     @Override

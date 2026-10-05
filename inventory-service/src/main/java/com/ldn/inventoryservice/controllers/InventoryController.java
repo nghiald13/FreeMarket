@@ -1,6 +1,6 @@
 package com.ldn.inventoryservice.controllers;
 
-import com.ldn.common.security.Public;
+import com.ldn.common.annotations.Public;
 import com.ldn.inventoryservice.services.InventoryService;
 import com.ldn.inventoryservice.dto.request.CartRequest;
 import com.ldn.inventoryservice.dto.response.CartDetailResponse;
