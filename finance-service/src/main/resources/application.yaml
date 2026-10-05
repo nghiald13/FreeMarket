@@ -1,16 +1,11 @@
 server:
-  port: 8081
-
-jwt:
-  key-id: ${JWT_KEY_ID:auth-service}
-  public-key: classpath:certs/public.pem
-  private-key: classpath:certs/private.pem
+  port: 8083
 
 spring:
   profiles:
     active: dev
   application:
-    name: auth-service
+    name: finance-service
   datasource:
     url:
     username:
@@ -32,23 +27,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-  # TODO This should be Notification Service on its own
-  mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
-    sender: ${MAIL_SENDER}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
@@ -64,13 +42,14 @@ spring:
       simple:
         acknowledge-mode: manual
         prefetch: 10 # Số lượng message tối đa lấy về bộ nhớ mỗi lần
-
   eureka:
     client:
       service-url:
         defaultZone: http://localhost:8761/eureka/
     instance:
       prefer-ip-address: true
-
-frontend:
-  url: ${FRONTEND_URL:http://localhost:3000}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth-service:8081/token/.well-known/jwks.json
