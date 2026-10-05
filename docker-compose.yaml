@@ -4,7 +4,7 @@ services:
     image: postgres:latest
     container_name: freemarket-postgres
     environment:
-      POSTGRES_MULTIPLE_DATABASE: auth_db,inventory_db
+      POSTGRES_MULTIPLE_DATABASE: auth_db,inventory_db,finance_db
       POSTGRES_USER: ${POSTGRES_ADMIN_USER:-root}
       POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-root}
     ports:
@@ -185,8 +185,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-#      kafka:
-#        condition: service_started
+      #      kafka:
+      #        condition: service_started
       eureka-server:
         condition: service_started
       redis:
@@ -196,6 +196,35 @@ services:
       - SPRING_DATASOURCE_URL=${INVENTORY_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${INVENTORY_DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${INVENTORY_DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - freemarket-network
+
+  # Finance Service
+  finance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: finance-service
+    container_name: finance-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+        #     kafka:
+        #        condition: service_started
+      eureka-server:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=${FINANCE_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${FINANCE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${FINANCE_DB_PASSWORD}
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     networks:

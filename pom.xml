@@ -21,6 +21,7 @@
         <module>api-gateway</module>
         <module>auth-service</module>
         <module>inventory-service</module>
+        <module>finance-service</module>
     </modules>
 
     <properties>
