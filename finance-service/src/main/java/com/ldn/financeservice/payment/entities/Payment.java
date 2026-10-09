@@ -1,7 +1,7 @@
-package com.ldn.financeservice.entities;
+package com.ldn.financeservice.payment.entities;
 
-import com.ldn.financeservice.enums.PaymentMethod;
-import com.ldn.financeservice.enums.PaymentStatus;
+import com.ldn.financeservice.payment.enums.PaymentMethod;
+import com.ldn.financeservice.payment.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

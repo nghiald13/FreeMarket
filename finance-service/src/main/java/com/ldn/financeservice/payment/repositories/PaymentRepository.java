@@ -1,6 +1,6 @@
-package com.ldn.financeservice.repositories;
+package com.ldn.financeservice.payment.repositories;
 
-import com.ldn.financeservice.entities.Payment;
+import com.ldn.financeservice.payment.entities.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {

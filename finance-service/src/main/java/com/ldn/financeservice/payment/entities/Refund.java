@@ -1,7 +1,7 @@
-package com.ldn.financeservice.entities;
+package com.ldn.financeservice.payment.entities;
 
-import com.ldn.financeservice.enums.RefundDestination;
-import com.ldn.financeservice.enums.RefundStatus;
+import com.ldn.financeservice.payment.enums.RefundDestination;
+import com.ldn.financeservice.payment.enums.RefundStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
