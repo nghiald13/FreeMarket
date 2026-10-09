@@ -1,4 +1,4 @@
-package com.ldn.financeservice.enums;
+package com.ldn.financeservice.wallet.enums;
 
 public enum WalletStatus {
     INACTIVE,

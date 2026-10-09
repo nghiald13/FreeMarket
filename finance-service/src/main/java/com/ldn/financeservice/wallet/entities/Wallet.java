@@ -1,7 +1,7 @@
-package com.ldn.financeservice.entities;
+package com.ldn.financeservice.wallet.entities;
 
-import com.ldn.financeservice.enums.WalletStatus;
-import com.ldn.financeservice.enums.WalletType;
+import com.ldn.financeservice.wallet.enums.WalletStatus;
+import com.ldn.financeservice.wallet.enums.WalletType;
 import jakarta.persistence.*;
 import lombok.*;
 
