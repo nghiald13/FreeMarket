@@ -1,9 +1,8 @@
-package com.ldn.authservice.services;
+package com.ldn.authservice.token;
 
-import com.ldn.authservice.dto.RefreshTokenDto;
-import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.entities.Account;
-import com.ldn.authservice.utils.TokenUtils;
+import com.ldn.authservice.auth.dto.responses.AuthResponse;
+import com.ldn.authservice.token.dto.RefreshTokenDto;
+import com.ldn.authservice.token.utils.TokenUtils;
 import com.ldn.common.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,28 +29,28 @@ public class JwtService {
     /**
      * Issues a short-lived RS256 access token carrying the user's id/email/roles.
      */
-    private String generateAccessToken(Account account) {
+    private String generateAccessToken(Long accountId, String email, String roles) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("auth-service")
                 .issuedAt(now)
                 .expiresAt(now.plus(accessTokenExpirationMinutes, ChronoUnit.MINUTES))
-                .subject(account.getId().toString())
-                .claim("email", account.getEmail())
+                .subject(accountId.toString())
+                .claim("email", email)
                 //TODO Uncomment this when implemented Account roles
-//                .claim("roles", account.getRoles())
+//                .claim("roles", roles)
                 .build();
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    private String generateRefreshToken(Account account) {
+    private String generateRefreshToken(Long accountId) {
         String rawToken = TokenUtils.randomToken(64);
         String hashToken = TokenUtils.sha256(rawToken);
         String cacheKey = "refreshTokens:%s".formatted(hashToken);
-        RefreshTokenDto refreshTokenDto = new RefreshTokenDto(account.getId());
+        RefreshTokenDto refreshTokenDto = new RefreshTokenDto(accountId);
         this.redisService.set(cacheKey, refreshTokenDto, 1, TimeUnit.DAYS);
 
-        String accountTokens = "tokens:account:%s".formatted(account.getId());
+        String accountTokens = "tokens:account:%s".formatted(accountId);
         this.redisService.sSet(accountTokens, hashToken, 1, TimeUnit.DAYS);
 
         return rawToken;
@@ -72,9 +71,9 @@ public class JwtService {
         return accessTokenExpirationMinutes * 60;
     }
 
-    public AuthResponse issueTokens(Account account) {
-        String accessToken = this.generateAccessToken(account);
-        String refreshToken = this.generateRefreshToken(account);
+    public AuthResponse issueTokens(Long accountId, String email, String roles) {
+        String accessToken = this.generateAccessToken(accountId, email, roles);
+        String refreshToken = this.generateRefreshToken(accountId);
         return new AuthResponse(accessToken, refreshToken, this.accessTokenExpirationSeconds());
     }
 

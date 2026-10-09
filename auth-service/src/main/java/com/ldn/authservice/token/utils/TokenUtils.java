@@ -1,10 +1,9 @@
-package com.ldn.authservice.utils;
+package com.ldn.authservice.token.utils;
 
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 
 import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

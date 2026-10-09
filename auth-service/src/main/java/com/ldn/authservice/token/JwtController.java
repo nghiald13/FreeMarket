@@ -1,7 +1,7 @@
-package com.ldn.authservice.controllers;
+package com.ldn.authservice.token;
 
-import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.services.AuthService;
+import com.ldn.authservice.auth.AuthService;
+import com.ldn.authservice.auth.dto.responses.AuthResponse;
 import com.ldn.common.annotations.RawResponse;
 import com.ldn.common.annotations.Public;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -16,7 +16,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/auth/token")
 public class JwtController {
-    private final AuthService authService;
     private final RSAKey rsaJwk;
 
     @RawResponse
@@ -24,11 +23,4 @@ public class JwtController {
     public Map<String, Object> jwks() {
         return new JWKSet(rsaJwk.toPublicJWK()).toJSONObject();   // rsaJwk inject qua constructor
     }
-
-    @PostMapping("/refresh")
-    public AuthResponse refreshTokens(@RequestHeader("X-Refresh-Token") String rawRefreshToken) {
-        return this.authService.refreshTokens(rawRefreshToken);
-    }
-
-
 }

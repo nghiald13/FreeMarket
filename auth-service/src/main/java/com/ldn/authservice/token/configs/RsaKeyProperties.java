@@ -1,4 +1,4 @@
-package com.ldn.authservice.security;
+package com.ldn.authservice.token.configs;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
