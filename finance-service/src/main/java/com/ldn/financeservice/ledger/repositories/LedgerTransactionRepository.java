@@ -1,6 +1,6 @@
-package com.ldn.financeservice.repositories;
+package com.ldn.financeservice.ledger.repositories;
 
-import com.ldn.financeservice.entities.LedgerTransaction;
+import com.ldn.financeservice.ledger.entities.LedgerTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LedgerTransactionRepository extends JpaRepository<LedgerTransaction, Long> {

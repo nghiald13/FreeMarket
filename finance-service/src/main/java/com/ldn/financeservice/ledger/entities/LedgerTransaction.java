@@ -1,7 +1,7 @@
-package com.ldn.financeservice.entities;
+package com.ldn.financeservice.ledger.entities;
 
-import com.ldn.financeservice.enums.LedgerTransactionStatus;
-import com.ldn.financeservice.enums.LedgerTransactionType;
+import com.ldn.financeservice.ledger.enums.LedgerTransactionStatus;
+import com.ldn.financeservice.ledger.enums.LedgerTransactionType;
 import jakarta.persistence.*;
 import lombok.*;
 

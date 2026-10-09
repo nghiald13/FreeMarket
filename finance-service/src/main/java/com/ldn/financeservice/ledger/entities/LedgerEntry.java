@@ -1,6 +1,6 @@
-package com.ldn.financeservice.entities;
+package com.ldn.financeservice.ledger.entities;
 
-import com.ldn.financeservice.enums.LedgerEntryDirection;
+import com.ldn.financeservice.ledger.enums.LedgerEntryDirection;
 import jakarta.persistence.*;
 import lombok.*;
 
