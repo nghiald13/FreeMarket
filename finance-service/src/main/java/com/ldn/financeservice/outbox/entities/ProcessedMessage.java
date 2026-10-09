@@ -1,4 +1,4 @@
-package com.ldn.financeservice.entities;
+package com.ldn.financeservice.outbox.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
