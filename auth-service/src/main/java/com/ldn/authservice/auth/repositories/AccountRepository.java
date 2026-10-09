@@ -1,6 +1,6 @@
-package com.ldn.authservice.repositories;
+package com.ldn.authservice.auth.repositories;
 
-import com.ldn.authservice.entities.Account;
+import com.ldn.authservice.auth.entities.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

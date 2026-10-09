@@ -1,8 +1,6 @@
-package com.ldn.authservice.dto;
+package com.ldn.authservice.auth.dto;
 
 import lombok.Builder;
-
-import java.util.Map;
 
 @Builder
 public record VerifyDto(

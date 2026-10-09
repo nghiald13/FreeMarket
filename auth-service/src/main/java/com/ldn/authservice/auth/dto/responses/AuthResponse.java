@@ -1,4 +1,4 @@
-package com.ldn.authservice.dto.response;
+package com.ldn.authservice.auth.dto.responses;
 
 public record AuthResponse(
         String accessToken,

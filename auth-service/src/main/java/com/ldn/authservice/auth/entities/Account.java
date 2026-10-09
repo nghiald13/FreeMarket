@@ -1,6 +1,6 @@
-package com.ldn.authservice.entities;
+package com.ldn.authservice.auth.entities;
 
-import com.ldn.authservice.enums.AccountStatus;
+import com.ldn.authservice.auth.enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

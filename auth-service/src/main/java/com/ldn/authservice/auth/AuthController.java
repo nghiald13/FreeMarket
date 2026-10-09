@@ -1,9 +1,8 @@
-package com.ldn.authservice.controllers;
+package com.ldn.authservice.auth;
 
-import com.ldn.authservice.dto.request.*;
-import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.dto.response.RegisterResponse;
-import com.ldn.authservice.services.AuthService;
+import com.ldn.authservice.auth.dto.requests.*;
+import com.ldn.authservice.auth.dto.responses.AuthResponse;
+import com.ldn.authservice.auth.dto.responses.RegisterResponse;
 import com.ldn.common.annotations.Public;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +25,11 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
         return this.authService.login(loginRequest);
+    }
+
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@RequestHeader("X-Refresh-Token") String rawRefreshToken) {
+        return this.authService.refreshTokens(rawRefreshToken);
     }
 
     @PostMapping("/verify/process")
@@ -53,6 +57,5 @@ public class AuthController {
     public AuthResponse resetPasswordRequest(@RequestBody() @Valid ResetPasswordRequest resetPasswordRequest) {
         return this.authService.resetPasswordRequest(resetPasswordRequest);
     }
-
 
 }

@@ -1,4 +1,4 @@
-package com.ldn.authservice.enums;
+package com.ldn.authservice.auth.enums;
 
 public enum AccountStatus {
     INACTIVE,

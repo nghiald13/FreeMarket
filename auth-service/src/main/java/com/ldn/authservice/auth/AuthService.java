@@ -1,14 +1,18 @@
-package com.ldn.authservice.services;
+package com.ldn.authservice.auth;
 
-import com.ldn.authservice.dto.VerifyDto;
-import com.ldn.authservice.dto.request.*;
-import com.ldn.authservice.dto.response.AuthResponse;
-import com.ldn.authservice.dto.response.RegisterResponse;
-import com.ldn.authservice.enums.AccountStatus;
-import com.ldn.authservice.exceptions.*;
-import com.ldn.authservice.entities.Account;
-import com.ldn.authservice.repositories.AccountRepository;
-import com.ldn.authservice.utils.TokenUtils;
+import com.ldn.authservice.auth.dto.requests.*;
+import com.ldn.authservice.auth.dto.responses.AuthResponse;
+import com.ldn.authservice.auth.exceptions.*;
+import com.ldn.authservice.auth.dto.VerifyDto;
+import com.ldn.authservice.auth.dto.responses.RegisterResponse;
+import com.ldn.authservice.auth.enums.AccountStatus;
+import com.ldn.authservice.auth.entities.Account;
+import com.ldn.authservice.auth.repositories.AccountRepository;
+import com.ldn.authservice.token.utils.TokenUtils;
+import com.ldn.authservice.notification.LoginLogsService;
+import com.ldn.authservice.notification.MailService;
+import com.ldn.authservice.token.exceptions.InvalidTokenException;
+import com.ldn.authservice.token.JwtService;
 import com.ldn.common.redis.RedisService;
 import com.ldn.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +92,7 @@ public class AuthService {
         if (account.getStatus().equals(AccountStatus.SUSPENDED)) throw new AccountSuspendedException();
 
         // Sign JWT tokens pair on success
-        return this.jwtService.issueTokens(account);
+        return this.jwtService.issueTokens(account.getId(), account.getEmail(), "");
     }
 
     private String createAuthSession(String email) {
@@ -187,13 +191,13 @@ public class AuthService {
         this.redisService.delete("verify:%s".formatted(hashKey));
 
         // Auto login
-        return this.jwtService.issueTokens(account);
+        return this.jwtService.issueTokens(account.getId(), account.getEmail(), "");
     }
 
     public AuthResponse refreshTokens(String rawRefreshToken) {
         Long accountId = this.jwtService.rotateTokens(rawRefreshToken);
         Account account = this.accountRepository.findById(accountId).orElseThrow(InvalidCredentialsException::new);
-        return this.jwtService.issueTokens(account);
+        return this.jwtService.issueTokens(account.getId(), account.getEmail(), "");
     }
 
     public void forgotPasswordRequest(ForgotPasswordRequest forgotPasswordRequest) {
@@ -229,7 +233,7 @@ public class AuthService {
         this.redisService.delete("verify:resolve:%s".formatted(resetPasswordRequest.token()));
         this.redisService.delete("verify:%s".formatted(hashKey));
 
-        return this.jwtService.issueTokens(account);
+        return this.jwtService.issueTokens(account.getId(), account.getEmail(), "");
     }
 
 }

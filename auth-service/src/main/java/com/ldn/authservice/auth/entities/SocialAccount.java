@@ -1,5 +1,5 @@
-package com.ldn.authservice.entities;
-import com.ldn.authservice.enums.SocialAccountProvider;
+package com.ldn.authservice.auth.entities;
+import com.ldn.authservice.auth.enums.SocialAccountProvider;
 import jakarta.persistence.*;
 import lombok.*;
 

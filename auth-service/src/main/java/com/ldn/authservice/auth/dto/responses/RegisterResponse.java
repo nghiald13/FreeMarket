@@ -1,6 +1,6 @@
-package com.ldn.authservice.dto.response;
+package com.ldn.authservice.auth.dto.responses;
 
-import com.ldn.authservice.entities.Account;
+import com.ldn.authservice.auth.entities.Account;
 
 public record RegisterResponse(Long id) {
     public static RegisterResponse fromEntity(Account account) {
