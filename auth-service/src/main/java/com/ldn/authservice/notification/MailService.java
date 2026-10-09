@@ -1,4 +1,4 @@
-package com.ldn.authservice.services;
+package com.ldn.authservice.notification;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

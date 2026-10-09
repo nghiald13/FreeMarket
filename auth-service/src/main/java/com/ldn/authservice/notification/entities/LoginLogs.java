@@ -1,5 +1,6 @@
-package com.ldn.authservice.entities;
+package com.ldn.authservice.notification.entities;
 
+import com.ldn.authservice.auth.entities.Account;
 import jakarta.persistence.*;
 import lombok.*;
 

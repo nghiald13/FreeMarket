@@ -1,4 +1,4 @@
-package com.ldn.authservice.utils;
+package com.ldn.authservice.notification.configs;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;

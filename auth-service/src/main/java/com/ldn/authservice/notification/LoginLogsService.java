@@ -1,8 +1,8 @@
-package com.ldn.authservice.services;
+package com.ldn.authservice.notification;
 
-import com.ldn.authservice.entities.Account;
-import com.ldn.authservice.entities.LoginLogs;
-import com.ldn.authservice.repositories.LoginLogsRepository;
+import com.ldn.authservice.auth.entities.Account;
+import com.ldn.authservice.notification.entities.LoginLogs;
+import com.ldn.authservice.notification.repositories.LoginLogsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
