@@ -13,11 +13,6 @@
         <option value="$PROJECT_DIR$/finance-service/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/intentory-service/pom.xml" />
-      </set>
-    </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_25" project-jdk-name="25 (WSL)" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
