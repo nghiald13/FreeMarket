@@ -19,13 +19,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 .filter(c -> c.getAuthentication() != null && c.getAuthentication().getPrincipal() instanceof Jwt)
                 .map(c -> (Jwt) c.getAuthentication().getPrincipal())
                 .flatMap(jwt -> {
-//                    String accountId = jwt.getSubject();
-                    String email = jwt.getClaimAsString("email");
+                    String accountId = jwt.getSubject();
+//                    String email = jwt.getClaimAsString("email");
 
                     // Gắn thông tin User vào Header truyền xuống Downstream Services
                     ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-//                            .header("X-Account-Id", accountId != null ? accountId : "")
-                            .header("X-Account-Email", email != null ? email : "")
+                            .header("X-Account-Id", accountId != null ? accountId : "")
+//                            .header("X-Account-Email", email != null ? email : "")
                             .build();
 
                     return chain.filter(exchange.mutate().request(mutatedRequest).build());
