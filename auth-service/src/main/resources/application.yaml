@@ -67,6 +67,9 @@ spring:
       simple:
         acknowledge-mode: manual
         prefetch: 10 # Số lượng message tối đa lấy về bộ nhớ mỗi lần
+  grpc:
+    server:
+      port: 9091
 
   eureka:
     client:

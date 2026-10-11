@@ -56,3 +56,25 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://auth-service:8081/auth/token/.well-known/jwks.json
+  grpc:
+    client:
+      channel:
+        auth-service:
+          target: static://auth-service:9091
+          inbound:
+            keepalive:
+              timeout: 40s
+            message:
+              max-size: 8MB
+
+zalopay:
+  base-url: ${ZP_BASE_URL}
+  app-id: ${ZP_APP_ID}
+  key1: ${ZP_KEY1}
+  key2: ${ZP_KEY2}
+  public-key: ${ZP_PUBLIC_KEY}
+  private-key: ${ZP_PRIVATE_KEY}
+
+stripe:
+  public-key: ${STRIPE_PUBLIC}
+  private-key: ${STRIPE_PRIVATE}
