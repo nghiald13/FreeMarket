@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "com.ldn.grpc.proto";
+option java_multiple_files = true;
+
+service AccountGrpcService {
+  rpc GetAccountInfo (AccountRequest) returns (AccountResponse);
+}
+
+message AccountRequest {
+  int64 id = 1;
+}
+
+message AccountResponse {
+  int64 id = 1;
+  string email = 2;
+  string fullName = 3;
+}
