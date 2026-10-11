@@ -13,6 +13,8 @@ import com.ldn.authservice.notification.LoginLogsService;
 import com.ldn.authservice.notification.MailService;
 import com.ldn.authservice.token.exceptions.InvalidTokenException;
 import com.ldn.authservice.token.JwtService;
+import com.ldn.common.rabbitmq.RabbitMQEventPublisher;
+import com.ldn.common.rabbitmq.events.AccountCreatedEvent;
 import com.ldn.common.redis.RedisService;
 import com.ldn.common.utils.Utils;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class AuthService {
     private final RedisService redisService;
     private final MailService mailService;
     private final JwtService jwtService;
+    private final RabbitMQEventPublisher rabbitMQEventPublisher;
 
     @Value("${frontend.url}")
     private String frontendURL;
@@ -51,7 +54,15 @@ public class AuthService {
 
         // Business
         Account account = Account.builder().name(userInfo.name()).email(userInfo.email()).password(password_hash).phone(userInfo.phone()).mfaSecret(mfaSecret).build();
-        accountRepository.save(account);
+        this.accountRepository.save(account);
+
+        // Publish event account created
+        this.rabbitMQEventPublisher.publish(AccountCreatedEvent.builder()
+                .accountId(account.getId())
+                .name(account.getName())
+                .email(account.getEmail())
+                .build()
+        );
 
         return RegisterResponse.fromEntity(account);
     }
@@ -220,7 +231,7 @@ public class AuthService {
         boolean verified = this.redisService.hasKey("verify:%s".formatted(hashKey));
         if (!verified) throw new InvalidTokenException();
 
-        boolean isOldPassword = this.encoder.matches(resetPasswordRequest.password(),  account.getPassword());
+        boolean isOldPassword = this.encoder.matches(resetPasswordRequest.password(), account.getPassword());
         if (isOldPassword) throw new OldPasswordException();
 
         String hashPassword = this.encoder.encode(resetPasswordRequest.password());
