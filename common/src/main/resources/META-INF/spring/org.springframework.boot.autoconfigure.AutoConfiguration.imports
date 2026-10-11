@@ -1,3 +1,4 @@
-com.ldn.common.advice.GlobalResponseAutoConfigutation
+com.ldn.common.advice.GlobalResponseAutoConfiguration
 com.ldn.common.security.SecurityConfig
 com.ldn.common.redis.RedisAutoConfiguration
+com.ldn.common.rabbitmq.RabbitMQAutoConfig
