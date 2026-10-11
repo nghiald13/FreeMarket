@@ -10,7 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfiguration
 @ConditionalOnClass(ResponseBodyAdvice.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-public class GlobalResponseAutoConfigutation {
+public class GlobalResponseAutoConfiguration {
 
     @Bean
     public GlobalResponseWrapper globalResponseWrapper(ObjectMapper objectMapper) {
