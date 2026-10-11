@@ -1,6 +1,10 @@
 package com.ldn.financeservice.wallet;
 
+import com.ldn.common.rabbitmq.events.AccountCreatedEvent;
+import com.ldn.financeservice.rabbitmq.RabbitMQConfig;
+import com.ldn.financeservice.wallet.dto.responses.ViewCustomerWalletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,12 +14,24 @@ public class WalletController {
     private final WalletService walletService;
 
     @PostMapping
-    public Long createWallet(@RequestHeader("X-Account-Id") String accountId) {
-        return this.walletService.createWallet(Long.parseLong(accountId));
+    public Long activateWallet(@RequestHeader("X-Account-Id") Long accountId) {
+        return this.walletService.activateWallet(accountId);
     }
 
-    @GetMapping("/stripe/link")
-    public void linkToStripe(@RequestHeader("X-Account-Id") Long accountId) {
-        this.walletService.linkToStripe(accountId);
+    @GetMapping("/customer")
+    public ViewCustomerWalletResponse viewCustomerWalletResponse(@RequestHeader("X-Account-Id") Long accountId) {
+        return this.walletService.viewCustomerWallet(accountId);
+    }
+
+//    @GetMapping("/stripe/link")
+//    public void linkToStripe(@RequestHeader("X-Account-Id") Long accountId) {
+//        this.walletService.linkToStripe(accountId);
+//    }
+
+    // Event Listener
+
+    @RabbitListener(queues = RabbitMQConfig.AUTH_QUEUE)
+    public void onAccountCreated(AccountCreatedEvent event) {
+        this.walletService.createWallet(event.accountId());
     }
 }
