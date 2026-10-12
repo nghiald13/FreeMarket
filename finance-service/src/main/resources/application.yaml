@@ -74,6 +74,7 @@ zalopay:
   key2: ${ZP_KEY2}
   public-key: ${ZP_PUBLIC_KEY}
   private-key: ${ZP_PRIVATE_KEY}
+  webhook: ${ZP_WEBHOOK}
 
 stripe:
   public-key: ${STRIPE_PUBLIC}
