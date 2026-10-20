@@ -1,22 +1,33 @@
 package com.ldn.financeservice.wallet;
 
+import com.ldn.common.redis.RedisService;
+import com.ldn.financeservice.payment.PaymentService;
 import com.ldn.financeservice.stripe.StripeService;
+import com.ldn.financeservice.wallet.dto.requests.TopUpRequest;
 import com.ldn.financeservice.wallet.dto.responses.ViewCustomerWalletResponse;
+import com.ldn.financeservice.wallet.entities.Topup;
 import com.ldn.financeservice.wallet.entities.Wallet;
 import com.ldn.financeservice.wallet.enums.WalletStatus;
 import com.ldn.financeservice.wallet.exceptions.InvalidWalletException;
+import com.ldn.financeservice.wallet.repositories.TopupRepository;
 import com.ldn.financeservice.zalopay.ZaloPayService;
 import com.ldn.financeservice.wallet.enums.WalletType;
 import com.ldn.financeservice.wallet.repositories.WalletRepository;
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class WalletService {
     private final WalletRepository walletRepository;
-
-//    private final ZaloPayService zaloPayService;
+    private final TopupRepository topupRepository;
+    private final ZaloPayService zaloPayService;
+    private final RedisService redisService;
+    private final PaymentService paymentService;
 //
 //    private final StripeService stripeService;
 
@@ -41,6 +52,37 @@ public class WalletService {
         Wallet wallet = this.walletRepository.findByAccountIdAndWalletType(accountId, WalletType.CUSTOMER)
                 .orElseThrow(InvalidWalletException::new);
         return ViewCustomerWalletResponse.fromEntity(wallet);
+    }
+
+    private String getTopupLinkByMethod(Topup topup, String method) {
+        switch (method.toLowerCase()) {
+            case "zalopay" -> {
+                String prefix = Topup.PROVIDER_REF_ID_PREFIX + topup.getWallet().getId();
+                String refId = this.zaloPayService.generateAppTransId(prefix);
+                topup.withZaloPay(refId);
+                return this.zaloPayService.createPayUrl(
+                        topup.getWallet().getId(),
+                        refId,
+                        "TOPUP",
+                        topup.getAmount().longValue()
+                );
+            }
+            default -> throw new BadRequestException("Invalid method!");
+        }
+    }
+
+    public String topUpBalance(String idempotencyKey, Long accountId, Long walletId, TopUpRequest topUpRequest) {
+        Wallet wallet = this.walletRepository.findById(walletId)
+                .orElseThrow(InvalidWalletException::new);
+
+        String method = topUpRequest.method();
+        Topup topup = Topup.builder()
+                .amount(topUpRequest.amount())
+                .wallet(wallet)
+                .build();
+        String topupLink = this.getTopupLinkByMethod(topup, method);
+        this.topupRepository.save(topup);
+        return topupLink;
     }
 
 //    public void linkToStripe(Long accountId) {

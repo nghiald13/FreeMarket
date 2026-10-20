@@ -19,11 +19,15 @@ public class RedisService {
     }
 
     public void set(String key, Object value, long timeout, TimeUnit unit) {
-        redisTemplate.opsForValue().set(key, value, timeout, unit);
+        redisTemplate.opsForValue().set(key, value, Expiration.from(timeout, unit));
     }
 
     public void setIfPresentKeepTTL(String key, Object value) {
         redisTemplate.opsForValue().setIfPresent(key, value, Expiration.keepTtl());
+    }
+
+    public boolean setIfAbsent(String key, Object value, long timeout, TimeUnit unit) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, Expiration.from(timeout, unit));
     }
 
     public <T> T get(String key, Class<T> type) {

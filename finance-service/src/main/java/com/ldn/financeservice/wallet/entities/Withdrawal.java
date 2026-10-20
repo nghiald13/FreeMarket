@@ -19,8 +19,9 @@ public class Withdrawal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "wallet_id", nullable = false)
-    private Long walletId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wallet_id", nullable = false)
+    private Wallet wallet;
 
     @Column(name = "amount", precision = 19, scale = 2, nullable = false)
     private BigDecimal amount;
