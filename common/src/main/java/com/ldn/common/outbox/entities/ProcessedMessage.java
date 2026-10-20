@@ -1,4 +1,4 @@
-package com.ldn.financeservice.outbox.entities;
+package com.ldn.common.outbox.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,3 +28,4 @@ public class ProcessedMessage {
         processedAt = LocalDateTime.now();
     }
 }
+

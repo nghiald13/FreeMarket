@@ -2,3 +2,4 @@ com.ldn.common.advice.GlobalResponseAutoConfiguration
 com.ldn.common.security.SecurityConfig
 com.ldn.common.redis.RedisAutoConfiguration
 com.ldn.common.rabbitmq.RabbitMQAutoConfig
+com.ldn.common.outbox.OutboxAutoConfig

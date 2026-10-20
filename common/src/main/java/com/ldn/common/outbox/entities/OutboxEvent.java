@@ -1,7 +1,9 @@
-package com.ldn.financeservice.outbox.entities;
+package com.ldn.common.outbox.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +28,7 @@ public class OutboxEvent {
     @Column(name = "event_type", length = 50, nullable = false)
     private String eventType;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
     private String payload;
 
@@ -39,4 +42,9 @@ public class OutboxEvent {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public void markPublished() {
+        this.publishedAt = LocalDateTime.now();
+    }
 }
+
