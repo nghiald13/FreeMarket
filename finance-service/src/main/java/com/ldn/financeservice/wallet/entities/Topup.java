@@ -83,4 +83,9 @@ public class Topup {
         this.status = TopupStatus.SUCCESS;
         return this;
     }
+
+    public Topup markFailed() {
+        this.status = TopupStatus.FAILED;
+        return this;
+    }
 }

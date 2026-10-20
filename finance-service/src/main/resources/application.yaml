@@ -72,6 +72,7 @@ jobrunr:
   background-job-server:
     enabled: true
   dashboard:
+    port: 8103
     enabled: true
 
 app:

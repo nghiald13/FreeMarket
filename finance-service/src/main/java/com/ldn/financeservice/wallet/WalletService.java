@@ -1,8 +1,5 @@
 package com.ldn.financeservice.wallet;
 
-import com.ldn.common.redis.RedisService;
-import com.ldn.financeservice.payment.PaymentService;
-import com.ldn.financeservice.stripe.StripeService;
 import com.ldn.financeservice.wallet.dto.requests.TopUpRequest;
 import com.ldn.financeservice.wallet.dto.responses.ViewCustomerWalletResponse;
 import com.ldn.financeservice.wallet.entities.Topup;
@@ -15,10 +12,10 @@ import com.ldn.financeservice.wallet.enums.WalletType;
 import com.ldn.financeservice.wallet.repositories.WalletRepository;
 import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
+import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +23,8 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final TopupRepository topupRepository;
     private final ZaloPayService zaloPayService;
-    private final RedisService redisService;
-    private final PaymentService paymentService;
-//
-//    private final StripeService stripeService;
+    private final JobScheduler jobScheduler;
+    private final WalletDelayedJob walletDelayedJob;
 
     public Long createWallet(Long accountId) {
         Wallet wallet = Wallet.builder()
@@ -82,10 +77,12 @@ public class WalletService {
                 .build();
         String topupLink = this.getTopupLinkByMethod(topup, method);
         this.topupRepository.save(topup);
+
+        // Schedule delayed job to handle timeout
+        this.jobScheduler.schedule(
+                Instant.now().plus(5, ChronoUnit.MINUTES),
+                () -> walletDelayedJob.handleTopupTimeout(topup)
+        );
         return topupLink;
     }
-
-//    public void linkToStripe(Long accountId) {
-//        this.stripeService.createLinkedAccount(accountId);
-//    }
 }

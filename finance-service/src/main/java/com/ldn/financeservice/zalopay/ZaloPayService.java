@@ -6,12 +6,14 @@ import com.ldn.common.rabbitmq.events.PaymentSuccessEvent;
 import com.ldn.common.rabbitmq.events.TopupSuccessEvent;
 import com.ldn.common.redis.RedisService;
 import com.ldn.financeservice.zalopay.configs.ZaloPayProperties;
+import com.ldn.financeservice.zalopay.dto.requests.QueryOrderRequest;
 import com.ldn.financeservice.zalopay.dto.requests.types.CreateOrderEmbdedData;
 import com.ldn.financeservice.zalopay.dto.requests.types.CreateOrderItem;
 import com.ldn.financeservice.zalopay.dto.requests.CreateOrderRequest;
 import com.ldn.financeservice.zalopay.dto.requests.ZaloPayCallbackRequest;
 import com.ldn.financeservice.zalopay.dto.requests.types.ZaloPayCallbackData;
 import com.ldn.financeservice.zalopay.dto.responses.CreateOrderResponse;
+import com.ldn.financeservice.zalopay.dto.responses.QueryOrderResponse;
 import com.ldn.financeservice.zalopay.dto.responses.ZaloPayCallbackResponse;
 import com.ldn.financeservice.zalopay.enums.ZaloPayAPI;
 import com.ldn.financeservice.zalopay.exceptions.InvalidCallbackSignatureException;
@@ -201,28 +203,63 @@ public class ZaloPayService {
         boolean recorded = this.outboxService.existsByAggregateId(data.app_trans_id());
         if (recorded) throw new OrderHandledException();
 
-        // Event coordination
-        DomainEvent event;
-        if (embdedData.orderType().equals("PAYMENT"))
-            event = PaymentSuccessEvent.builder()
-                    .build();
-        else if (embdedData.orderType().equals("TOPUP"))
-            event = TopupSuccessEvent.builder()
-                    .amount(data.amount())
-                    .providerRefId(data.app_trans_id())
-                    .providerTxnId(data.zp_trans_id().toString())
-                    .build();
-        else throw new InvalidCallbackSignatureException();
-        this.outboxService.record(
-                embdedData.orderType(),
-                data.app_trans_id(),
-                event
-        );
+        // Announce event
+        this.announceEvent(embdedData.orderType(), data.amount(), data.zp_trans_id(), data.app_trans_id());
 
         // Reponse to ZaloPay Api
         return ZaloPayCallbackResponse.builder()
                 .return_code(1)
                 .return_message("Đã xử lý giao dịch!")
                 .build();
+    }
+
+    public void announceEvent(String orderType, Long amount, Long providerTxnId, String providerRefId) {
+        // Event coordination
+        DomainEvent event;
+        if (orderType.equals("PAYMENT"))
+            event = PaymentSuccessEvent.builder()
+                    .build();
+        else if (orderType.equals("TOPUP"))
+            event = TopupSuccessEvent.builder()
+                    .amount(amount)
+                    .providerRefId(providerRefId)
+                    .providerTxnId(providerTxnId.toString())
+                    .build();
+        else throw new InvalidCallbackSignatureException();
+        this.outboxService.record(
+                orderType,
+                providerRefId,
+                event
+        );
+    }
+
+    /**
+     *
+     * @param orderType
+     * @param providerRefId
+     * @return 1 = success, 2 = failed, 3 = processing
+     * Handle case 2 and 3 only, case 1 act like webhook
+     */
+    public int queryOrder(String orderType, String providerRefId) {
+        int appId = this.zaloPayProperties.appId();
+        String mac = ZaloPayHMACUtils.HMacHexStringEncode(ZaloPayHMACUtils.HMACSHA256, this.zaloPayProperties.key1(), providerRefId);
+        QueryOrderRequest request = QueryOrderRequest.builder()
+                .app_id(appId)
+                .app_trans_id(providerRefId)
+                .mac(mac)
+                .build();
+
+        QueryOrderResponse response = this.zaloPayClient.post()
+                .uri(ZaloPayAPI.QUERY_ORDER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(QueryOrderResponse.class);
+
+        if (response.return_code() == 1)
+            this.announceEvent(orderType, response.amount(), response.zp_trans_id(), providerRefId);
+
+        return response.return_code();
+
     }
 }
