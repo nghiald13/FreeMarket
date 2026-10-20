@@ -48,7 +48,7 @@ services:
       - freemarket-network
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:management
     container_name: freemarket-rabbitmq
     ports:
       - "5672:5672"
