@@ -234,11 +234,11 @@ public class ZaloPayService {
     }
 
     /**
-     *
+     * Query existing order when not receiving any call back or timed out.
      * @param orderType
      * @param providerRefId
      * @return 1 = success, 2 = failed, 3 = processing
-     * Handle case 2 and 3 only, case 1 act like webhook
+     * @implSpec Handle case 2 and 3 only, case 1 act like webhook
      */
     public int queryOrder(String orderType, String providerRefId) {
         int appId = this.zaloPayProperties.appId();
