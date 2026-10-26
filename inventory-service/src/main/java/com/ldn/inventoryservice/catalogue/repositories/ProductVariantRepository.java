@@ -1,0 +1,9 @@
+package com.ldn.inventoryservice.catalogue.repositories;
+
+import com.ldn.inventoryservice.catalogue.entities.ProductVariant;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface ProductVariantRepository extends JpaRepository<ProductVariant, UUID> {
+}
