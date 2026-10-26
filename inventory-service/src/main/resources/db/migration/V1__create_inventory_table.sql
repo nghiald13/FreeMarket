@@ -1,16 +1,3 @@
--- =====================================================================
--- V1__create_inventory_db.sql
--- inventory-service: catalog, inventory (stock), order, cart, wishlist
--- Target: PostgreSQL 14+
---
--- Quy ước:
---   * PK là UUID (nên sinh UUIDv7 ở tầng app; DEFAULT gen_random_uuid() chỉ là fallback)
---   * Thời gian dùng TIMESTAMPTZ, tiền dùng NUMERIC(19,4) + currency ISO-4217
---   * "Enum" dùng VARCHAR + CHECK (dễ migrate hơn PG ENUM, map JPA đơn giản)
---   * user_id / customer_id tham chiếu sang service khác => KHÔNG có FK
---   * version BIGINT dùng cho optimistic locking (@Version)
--- =====================================================================
-
 -- ---------------------------------------------------------------------
 -- 0. Helpers
 -- ---------------------------------------------------------------------
@@ -96,9 +83,9 @@ CREATE TABLE product_variant
     sku            VARCHAR(100)  NOT NULL,
     barcode        VARCHAR(100),
     name           VARCHAR(500),
-    price          NUMERIC(19, 4) NOT NULL,
-    compare_at_price NUMERIC(19, 4),
-    cost_price     NUMERIC(19, 4),
+    price          NUMERIC(19, 2) NOT NULL,
+    compare_at_price NUMERIC(19, 2),
+    cost_price     NUMERIC(19, 2),
     currency       CHAR(3)       NOT NULL DEFAULT 'VND',
     weight_grams   INT,
     -- Tuỳ chọn của biến thể, ví dụ {"color":"red","size":"M"}
@@ -217,11 +204,11 @@ CREATE TABLE orders
     status           VARCHAR(20)    NOT NULL DEFAULT 'PENDING',
     payment_status   VARCHAR(20)    NOT NULL DEFAULT 'UNPAID',
     currency         CHAR(3)        NOT NULL DEFAULT 'VND',
-    subtotal_amount  NUMERIC(19, 4) NOT NULL DEFAULT 0,
-    discount_amount  NUMERIC(19, 4) NOT NULL DEFAULT 0,
-    shipping_amount  NUMERIC(19, 4) NOT NULL DEFAULT 0,
-    tax_amount       NUMERIC(19, 4) NOT NULL DEFAULT 0,
-    total_amount     NUMERIC(19, 4) NOT NULL DEFAULT 0,
+    subtotal_amount  NUMERIC(19, 2) NOT NULL DEFAULT 0,
+    discount_amount  NUMERIC(19, 2) NOT NULL DEFAULT 0,
+    shipping_amount  NUMERIC(19, 2) NOT NULL DEFAULT 0,
+    tax_amount       NUMERIC(19, 2) NOT NULL DEFAULT 0,
+    total_amount     NUMERIC(19, 2) NOT NULL DEFAULT 0,
     -- Snapshot địa chỉ tại thời điểm đặt hàng (không phụ thuộc user-service sau này)
     shipping_address JSONB          NOT NULL,
     billing_address  JSONB,
@@ -260,10 +247,10 @@ CREATE TABLE order_item
     sku          VARCHAR(100)   NOT NULL,
     product_name VARCHAR(500)   NOT NULL,
     variant_name VARCHAR(500),
-    unit_price   NUMERIC(19, 4) NOT NULL,
+    unit_price   NUMERIC(19, 2) NOT NULL,
     quantity     INT            NOT NULL,
-    discount_amount NUMERIC(19, 4) NOT NULL DEFAULT 0,
-    line_total   NUMERIC(19, 4) NOT NULL,
+    discount_amount NUMERIC(19, 2) NOT NULL DEFAULT 0,
+    line_total   NUMERIC(19, 2) NOT NULL,
     created_at   TIMESTAMPTZ    NOT NULL DEFAULT now(),
     CONSTRAINT ck_order_item_qty CHECK (quantity > 0),
     CONSTRAINT ck_order_item_price CHECK (unit_price >= 0 AND discount_amount >= 0 AND line_total >= 0)
@@ -292,11 +279,9 @@ ALTER TABLE stock_reservation
 CREATE TABLE cart
 (
     id          UUID PRIMARY KEY     DEFAULT gen_random_uuid(),
-    customer_id UUID,                          -- NULL = giỏ hàng khách vãng lai
-    session_id  VARCHAR(100),                  -- định danh guest cart
+    customer_id BIGINT NOT NULL UNIQUE,
     status      VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     currency    CHAR(3)     NOT NULL DEFAULT 'VND',
-    expires_at  TIMESTAMPTZ,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     version     BIGINT      NOT NULL DEFAULT 0,
@@ -308,7 +293,6 @@ CREATE UNIQUE INDEX uq_cart_active_customer ON cart (customer_id)
     WHERE status = 'ACTIVE' AND customer_id IS NOT NULL;
 CREATE UNIQUE INDEX uq_cart_active_session ON cart (session_id)
     WHERE status = 'ACTIVE' AND customer_id IS NULL;
-CREATE INDEX idx_cart_expires ON cart (expires_at) WHERE status = 'ACTIVE';
 
 CREATE TABLE cart_item
 (
@@ -316,8 +300,6 @@ CREATE TABLE cart_item
     cart_id          UUID           NOT NULL REFERENCES cart (id) ON DELETE CASCADE,
     variant_id       UUID           NOT NULL REFERENCES product_variant (id) ON DELETE CASCADE,
     quantity         INT            NOT NULL,
-    -- Giá lúc thêm vào giỏ, dùng để cảnh báo khi giá thay đổi
-    unit_price_snapshot NUMERIC(19, 4),
     created_at       TIMESTAMPTZ    NOT NULL DEFAULT now(),
     updated_at       TIMESTAMPTZ    NOT NULL DEFAULT now(),
     CONSTRAINT uq_cart_item UNIQUE (cart_id, variant_id),
