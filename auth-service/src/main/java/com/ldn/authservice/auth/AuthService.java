@@ -135,7 +135,7 @@ public class AuthService {
         return rawKey;
     }
 
-    private String verifyResolve(String token) {
+    public String verifyResolve(String token) {
         String email = this.redisService.get("verify:resolve:%s".formatted(token), String.class);
         if (email == null) throw new InvalidTokenException();
         return email;
@@ -191,7 +191,7 @@ public class AuthService {
 
         // Logging attempt
         this.loginLogsService.log(account, "mfa", status);
-        if (status.equals("failed")) throw new InvalidTokenException();
+        if (status.equals("failed")) throw new IncorrectOtpException();
 
         // All passed
         account.setStatus(AccountStatus.ACTIVE);

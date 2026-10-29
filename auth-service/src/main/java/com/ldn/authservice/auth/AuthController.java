@@ -42,6 +42,11 @@ public class AuthController {
         this.authService.verifyEmailRequest(verifyEmailRequest);
     }
 
+    @PostMapping("/verify/resolve")
+    public String verifyResolveRequest(@RequestBody @Valid VerifyResolveRequest resolveRequest) {
+        return this.authService.verifyResolve(resolveRequest.key());
+    }
+
     @PostMapping("/verify/proceed")
     public AuthResponse verifyProceedRequest(@RequestBody() @Valid VerifyProceedRequest verifyProceedRequest) {
         return this.authService.verifyProceedRequest(verifyProceedRequest);
