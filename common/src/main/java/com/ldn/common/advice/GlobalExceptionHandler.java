@@ -49,6 +49,6 @@ public class GlobalExceptionHandler {
         int statusCode = ex.getStatusCode();
 
         return ResponseEntity.status(statusCode)
-                .body(ApiResponse.error(ex.getMessage(), null, statusCode));
+                .body(ApiResponse.error(ex.getMessage(), ex.getError(), statusCode));
     }
 }

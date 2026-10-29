@@ -1,6 +1,7 @@
 package com.ldn.common.advice;
 
 import com.ldn.common.annotations.RawResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -12,13 +13,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import tools.jackson.databind.ObjectMapper;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
 
     private final ObjectMapper objectMapper;
-
-    public GlobalResponseWrapper(tools.jackson.databind.ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
