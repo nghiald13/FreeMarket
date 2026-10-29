@@ -4,12 +4,13 @@ import com.ldn.common.exception.BusinessException;
 
 public class AccountInactivedException extends BusinessException {
     private static final String message = "This account has not been verified!";
+    private static final String error = "AccountInactiveException";
 
     public AccountInactivedException() {
-        super(message);
+        super(message, error);
     }
 
     public AccountInactivedException(String message) {
-        super(message);
+        super(message, error);
     }
 }

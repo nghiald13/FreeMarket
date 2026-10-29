@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 public class AccountExistedException extends BusinessException {
     private static final HttpStatus httpStatus = HttpStatus.CONFLICT;
     private static final String message = "Email or Phone have already been registered!";
+    private static final String error = "AccountExistedException";
 
     public AccountExistedException() {
-        super(message, httpStatus);
+        super(message, httpStatus, error);
     }
     public AccountExistedException(String message) {
-        super(message, httpStatus);
+        super(message, httpStatus, error);
     }
 }
