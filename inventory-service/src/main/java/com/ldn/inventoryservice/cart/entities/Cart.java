@@ -66,6 +66,7 @@ public class Cart {
 
     /** Thêm vào giỏ; nếu variant đã có thì cộng dồn số lượng. */
     public CartItem addItem(ProductVariant variant, int quantity) {
+        if (quantity < 1) throw new IllegalArgumentException("Quantity must be greater than 0");
         return items.stream()
                 .filter(i -> i.getProductVariant().getId().equals(variant.getId()))
                 .findFirst()

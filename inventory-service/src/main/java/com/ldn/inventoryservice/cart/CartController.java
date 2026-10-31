@@ -1,9 +1,8 @@
 package com.ldn.inventoryservice.cart;
 
-import com.ldn.inventoryservice.cart.dto.requests.AddItemRequest;
-import com.ldn.inventoryservice.cart.dto.requests.UpdateItemRequest;
 import com.ldn.inventoryservice.cart.dto.responses.CartItemResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -24,24 +23,27 @@ public class CartController {
         return this.cartService.getCartItemsByCustomerId(customerId);
     }
 
-    @PostMapping
+    @PostMapping("/item/{variantId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void addItem(
             @RequestHeader("X-Account-Id") Long customerId,
-            @RequestBody @Valid AddItemRequest request
+            @PathVariable("variantId") @Valid @NotNull UUID variantId,
+            @RequestBody @Valid @NotNull Integer quantity
     ) {
-        this.cartService.addItem(customerId, request.variantId(), request.quantity());
+        this.cartService.addItem(customerId, variantId, quantity);
     }
 
-    @PatchMapping
-    public void updateItemQuantity(@RequestBody @Valid UpdateItemRequest request) {
-        this.cartService.updateItemQuantity(request.cartItemId(), request.quantity());
+    @PatchMapping("/item/{cartItemId}")
+    public void updateItemQuantity(
+            @PathVariable("cartItemId") @Valid @NotNull  UUID cartItemId,
+            @RequestBody @Valid @NotNull Integer quantity) {
+        this.cartService.updateItemQuantity(cartItemId, quantity);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/item/{cartItemId}")
     public void removeItem(
             @RequestHeader("X-Account-Id") Long customerId,
-            @RequestBody @Valid UUID cartItemId
+            @PathVariable("cartItemId") @Valid @NotNull UUID cartItemId
     ) {
         this.cartService.removeItem(customerId, cartItemId);
     }
