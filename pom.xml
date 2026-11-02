@@ -22,6 +22,7 @@
         <module>auth-service</module>
         <module>inventory-service</module>
         <module>finance-service</module>
+        <module>merchant-service</module>
     </modules>
 
     <properties>

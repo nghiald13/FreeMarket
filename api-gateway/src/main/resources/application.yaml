@@ -34,6 +34,13 @@ spring:
                 - Path=/api/finance/**
               filters:
                 - StripPrefix=1
+                -
+            - id: merchant-service
+              uri: lb://finance-service
+              predicates:
+                - Path=/api/merchant/**
+              filters:
+                - StripPrefix=1
   security:
     oauth2:
       resourceserver:
