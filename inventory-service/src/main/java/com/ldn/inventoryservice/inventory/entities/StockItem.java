@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -68,10 +70,20 @@ public class StockItem {
         updatedAt = LocalDateTime.now();
     }
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "stockItem")
+    private List<StockMovement> stockMovements = new ArrayList<>();
+
+    private void logMovement(StockMovement stockMovement) {
+        this.stockMovements.add(stockMovement);
+    }
+
     /** Nhập kho. */
     public void receive(int quantity) {
         requirePositive(quantity);
         quantityOnHand += quantity;
+        StockMovement stockMovement = new StockMovement()
+                .logInbound(this, quantity);
+        this.logMovement(stockMovement);
     }
 
     /** Giữ hàng cho đơn (chưa trừ tồn thực). */

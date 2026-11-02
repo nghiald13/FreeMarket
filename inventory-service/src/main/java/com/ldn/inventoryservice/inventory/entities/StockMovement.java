@@ -51,4 +51,11 @@ public class StockMovement {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public StockMovement logInbound(StockItem stockItem, Integer quantity) {
+        this.stockItem = stockItem;
+        this.quantityDelta = quantity;
+        this.movementType = StockMovementType.INBOUND;
+        return this;
+    }
 }
