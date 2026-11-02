@@ -58,7 +58,7 @@ public class JwtService {
 
     public Long rotateTokens(String rawRefreshToken) {
         String hashToken = TokenUtils.sha256(rawRefreshToken);
-        String cacheKey = "refreshToken:%s".formatted(hashToken);
+        String cacheKey = "refreshTokens:%s".formatted(hashToken);
         RefreshTokenDto refreshTokenDto = this.redisService.getAndDelete(cacheKey, RefreshTokenDto.class);
 
         String accountTokens = "token:account:%s".formatted(refreshTokenDto.accountId());

@@ -6,8 +6,9 @@ import org.springframework.http.HttpStatus;
 public class OldPasswordException extends BusinessException {
     private static final HttpStatus httpStatus = HttpStatus.CONFLICT;
     private static final String message = "Cannot use current password!";
-    public OldPasswordException() {super(message, httpStatus);;}
+    private static final String error = "OldPasswordException";
+    public OldPasswordException() {super(message, httpStatus, error);;}
     public OldPasswordException(String message) {
-        super(message);
+        super(message, error);
     }
 }
