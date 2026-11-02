@@ -2,11 +2,13 @@
 CREATE DATABASE auth_db;
 CREATE DATABASE inventory_db;
 CREATE DATABASE finance_db;
+CREATE DATABASE merchant_db;
 
 -- 2. Tạo User
 CREATE USER your_auth_user WITH PASSWORD 'your_auth_password';
 CREATE USER your_inventory_user WITH PASSWORD 'your_auth_password';
 CREATE USER your_finance_user WITH PASSWORD 'your_finance_password';
+CREATE USER your_merchant_user WITH PASSWORD 'your_merchant_password';
 
 -- 3. Cấp quyền Database & Schema public cho Auth Service
 GRANT ALL PRIVILEGES ON DATABASE auth_db TO auth_user;
@@ -20,8 +22,14 @@ GRANT ALL PRIVILEGES ON DATABASE inventory_db TO inventory_user;
 GRANT ALL ON SCHEMA public TO inventory_user;
 ALTER SCHEMA public OWNER TO inventory_user;
 
--- Cấp quyền Database & Schema public cho Finance Service
+--5. Cấp quyền Database & Schema public cho Finance Service
 GRANT ALL PRIVILEGES ON DATABASE finance_db TO your_finance_user;
 \c finance_db;
 GRANT ALL ON SCHEMA public TO your_finance_user;
 ALTER SCHEMA public OWNER TO your_finance_user;
+
+--6. Cấp quyền Database & Schema public cho Finance Service
+GRANT ALL PRIVILEGES ON DATABASE merchant_db TO merchant_user;
+\c merchant_db;
+GRANT ALL ON SCHEMA public TO merchant_user;
+ALTER SCHEMA public OWNER TO merchant_user;
