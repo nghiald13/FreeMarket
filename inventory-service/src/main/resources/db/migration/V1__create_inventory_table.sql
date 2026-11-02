@@ -286,13 +286,11 @@ CREATE TABLE cart
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     version     BIGINT      NOT NULL DEFAULT 0,
     CONSTRAINT ck_cart_status CHECK (status IN ('ACTIVE', 'CHECKED_OUT', 'ABANDONED', 'MERGED')),
-    CONSTRAINT ck_cart_owner CHECK (customer_id IS NOT NULL OR session_id IS NOT NULL)
+    CONSTRAINT ck_cart_owner CHECK (customer_id IS NOT NULL)
 );
 -- Mỗi khách chỉ có tối đa 1 giỏ ACTIVE
 CREATE UNIQUE INDEX uq_cart_active_customer ON cart (customer_id)
     WHERE status = 'ACTIVE' AND customer_id IS NOT NULL;
-CREATE UNIQUE INDEX uq_cart_active_session ON cart (session_id)
-    WHERE status = 'ACTIVE' AND customer_id IS NULL;
 
 CREATE TABLE cart_item
 (
