@@ -1,7 +1,10 @@
 package com.ldn.financeservice.payment.entities;
 
+import com.ldn.financeservice.payment.enums.PaymentProvider;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -17,8 +20,9 @@ public class PaymentWebhookEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "provider", length = 30, nullable = false)
-    private String provider;
+    PaymentProvider provider;
 
     @Column(name = "event_id", length = 100, nullable = false)
     private String eventId;
@@ -26,11 +30,13 @@ public class PaymentWebhookEvent {
     @Column(name = "event_type", length = 50, nullable = false)
     private String eventType;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
     private String payload;
 
     @Column(name = "signature_valid", nullable = false)
-    private boolean signatureValid;
+    @Builder.Default
+    private boolean signatureValid = false;
 
     @Column(name = "processed", nullable = false)
     @Builder.Default
